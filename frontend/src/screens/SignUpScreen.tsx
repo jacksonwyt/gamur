@@ -1,23 +1,54 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Text, TextInput, Button } from 'react-native-paper';
+import { Text, TextInput, Button, ActivityIndicator } from 'react-native-paper';
+import { useAuth } from '../contexts/AuthContext';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../navigation/MainNavigator';
+import apiClient from '../api/client';
+
+interface SignUpResponse {
+  accessToken: string;
+}
 
 type SignUpScreenProps = NativeStackScreenProps<MainStackParamList, 'SignUp'>;
 
 export function SignUpScreen({ navigation }: SignUpScreenProps) {
-  // Placeholder state and handlers will go here
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [confirmPassword, setConfirmPassword] = React.useState('');
+  const { login } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleSignUp() {
-    // TODO: Implement real sign up logic (API call, state update)
-    console.log('Sign Up attempt:', email);
-    // Navigate to Home after successful sign up (placeholder)
-    navigation.replace('Home');
+  async function handleSignUp() {
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match.');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await apiClient.post<SignUpResponse>('/auth/register', {
+        email,
+        password,
+      });
+
+      const { accessToken } = response.data;
+
+      await login(accessToken);
+      console.log('Sign up successful, token stored via context');
+
+    } catch (err: any) {
+      console.error('Sign up failed:', err.response?.data || err.message);
+      const errorMessage = err.response?.data?.message || 'Sign up failed. Please try again.';
+      setError(errorMessage);
+      Alert.alert('Sign Up Error', errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   function handleNavigateToLogin() {
@@ -30,6 +61,7 @@ export function SignUpScreen({ navigation }: SignUpScreenProps) {
         <Text variant="headlineMedium" style={styles.title}>
           Sign Up
         </Text>
+        {error && <Text style={styles.errorText}>{error}</Text>}
         <TextInput
           label="Email"
           value={email}
@@ -38,6 +70,7 @@ export function SignUpScreen({ navigation }: SignUpScreenProps) {
           style={styles.input}
           keyboardType="email-address"
           autoCapitalize="none"
+          disabled={isLoading}
         />
         <TextInput
           label="Password"
@@ -46,6 +79,7 @@ export function SignUpScreen({ navigation }: SignUpScreenProps) {
           mode="outlined"
           style={styles.input}
           secureTextEntry
+          disabled={isLoading}
         />
         <TextInput
           label="Confirm Password"
@@ -54,11 +88,23 @@ export function SignUpScreen({ navigation }: SignUpScreenProps) {
           mode="outlined"
           style={styles.input}
           secureTextEntry
+          disabled={isLoading}
         />
-        <Button mode="contained" onPress={handleSignUp} style={styles.button}>
-          Sign Up
+        <Button 
+          mode="contained" 
+          onPress={handleSignUp} 
+          style={styles.button}
+          disabled={isLoading}
+          loading={isLoading}
+        >
+          {isLoading ? 'Signing Up...' : 'Sign Up'}
         </Button>
-        <Button mode="text" onPress={handleNavigateToLogin} style={styles.button}>
+        <Button 
+          mode="text" 
+          onPress={handleNavigateToLogin} 
+          style={styles.button}
+          disabled={isLoading}
+        >
           Already have an account? Login
         </Button>
       </View>
@@ -87,5 +133,10 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 8,
     width: '100%',
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 16,
+    textAlign: 'center',
   },
 }); 

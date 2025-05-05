@@ -21,5 +21,209 @@ model User {
 
   email    String  @unique
   password String // Store password hash, not plain text
-  name     String? // Optional name
+  name     String? // Optional name - Consider moving to Profile as username
+  hashedRefreshToken String? // Optional field to store the hashed refresh token
+
+  // --- Relations ---
+  profile          Profile?
+  habitDefinitions HabitDefinition[]
+  habitLogs        HabitLog[]
+  healthLogs       HealthLog[]
+  userBadges       UserBadge[]
+  userQuests       UserQuestProgress[]
+  settings         UserSettings?
+  aiOutputs        AIOutput[]
+}
+
+// Phase 1: User Profile
+model Profile {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @unique // Foreign Key to User
+  username     String?  @unique // Optional, distinct username
+  avatarConfig Json?    // Store avatar details (e.g., { body: 'typeA', color: '#FF0000' })
+  currentLevel Int      @default(1)
+  currentXP    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // --- Relations ---
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Phase 2: Habit Tracking
+model HabitDefinition {
+  id          Int      @id @default(autoincrement())
+  userId      Int      // Foreign Key to User
+  name        String
+  description String?
+  frequency   String   // e.g., "daily", "weekly", "custom"
+  target      Int?     // e.g., target number of times per frequency period
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // --- Relations ---
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  habitLogs HabitLog[]
+}
+
+model HabitLog {
+  id             Int      @id @default(autoincrement())
+  habitId        Int      // Foreign Key to HabitDefinition
+  userId         Int      // Foreign Key to User (denormalized for easier querying)
+  completionDate DateTime @db.Date // Store only the date part
+  notes          String?
+  createdAt      DateTime @default(now())
+
+  // --- Relations ---
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  habitDefinition HabitDefinition @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@index([userId, completionDate])
+  @@index([habitId, completionDate])
+}
+
+// Phase 2: Health Data
+enum HealthMetricType {
+  MOOD
+  SLEEP_HOURS
+  SLEEP_QUALITY
+  STEPS
+  // Add other types as needed
+}
+
+enum HealthDataSource {
+  MANUAL
+  APPLE_HEALTH
+  GOOGLE_FIT
+  // Add other sources as needed
+}
+
+model HealthLog {
+  id         Int              @id @default(autoincrement())
+  userId     Int              // Foreign Key to User
+  date       DateTime         @db.Date // Store only the date part
+  metricType HealthMetricType
+  value      Float            // Use Float for flexibility (e.g., mood scale, hours, steps)
+  source     HealthDataSource @default(MANUAL)
+  createdAt  DateTime         @default(now())
+
+  // --- Relations ---
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date, metricType])
+}
+
+// Phase 3: Gamification - Badges
+model BadgeDefinition {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String
+  criteria    Json      // e.g., { type: "streak", habitName: "Meditate", value: 7 } or { type: "questComplete", questId: 123 }
+  icon        String?   // URL or identifier for the badge icon
+  createdAt   DateTime  @default(now())
+
+  // --- Relations ---
+  userBadges UserBadge[]
+  questsRewarded QuestDefinition[] // Opposite relation for badgeReward
+}
+
+model UserBadge {
+  id        Int      @id @default(autoincrement())
+  userId    Int      // Foreign Key to User
+  badgeId   Int      // Foreign Key to BadgeDefinition
+  earnedDate DateTime @default(now())
+
+  // --- Relations ---
+  user  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge BadgeDefinition @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId]) // User can earn each badge only once
+}
+
+// Phase 3: Gamification - Quests
+enum QuestType {
+  USER_DEFINED
+  AI_SUGGESTED
+  MAP_BASED
+  // Add other types as needed
+}
+
+enum QuestStatus {
+  ACTIVE
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model QuestDefinition {
+  id          Int       @id @default(autoincrement())
+  type        QuestType
+  title       String
+  description String
+  criteria    Json      // e.g., { targetSteps: 5000, durationDays: 1 } or { location: { lat: ..., lon: ... }, radiusMeters: 50 }
+  xpReward    Int       @default(0)
+  badgeRewardId Int?      // Optional Foreign Key to BadgeDefinition
+  isActive    Boolean   @default(true) // Can quests be deactivated?
+  createdAt   DateTime  @default(now())
+
+  // --- Relations ---
+  badgeReward BadgeDefinition?    @relation(fields: [badgeRewardId], references: [id])
+  userQuests  UserQuestProgress[]
+  aiOutputs   AIOutput[]          // Opposite relation for relatedQuest
+}
+
+model UserQuestProgress {
+  id             Int         @id @default(autoincrement())
+  userId         Int         // Foreign Key to User
+  questId        Int         // Foreign Key to QuestDefinition
+  status         QuestStatus @default(ACTIVE)
+  progressData   Json?       // Store current progress, e.g., { currentSteps: 1200 }
+  startDate      DateTime    @default(now())
+  completionDate DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  // --- Relations ---
+  user  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quest QuestDefinition @relation(fields: [questId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questId]) // Should a user only have one active instance of a specific quest? Adjust if repeatable.
+  @@index([userId, status])
+}
+
+// Phase 4: AI Companion
+enum AIOutputType {
+  INSIGHT
+  SUGGESTION
+  MICRO_QUEST // Reference to a QuestDefinition?
+}
+
+model AIOutput {
+  id         Int          @id @default(autoincrement())
+  userId     Int          // Foreign Key to User
+  type       AIOutputType
+  text       String
+  relatedQuestId Int?       // Optional FK if type is MICRO_QUEST
+  createdAt  DateTime     @default(now())
+  seenByUser Boolean      @default(false)
+
+  // --- Relations ---
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  relatedQuest QuestDefinition? @relation(fields: [relatedQuestId], references: [id]) // Assuming a micro-quest maps to a QuestDefinition
+
+  @@index([userId, seenByUser])
+}
+
+// Phase 4: Settings
+model UserSettings {
+  id                  Int      @id @default(autoincrement())
+  userId              Int      @unique // Foreign Key to User
+  notificationPrefs   Json?    // e.g., { habitReminders: true, badgeNotifications: true }
+  privacyFlags        Json?    // e.g., { shareActivityWithFriends: false }
+  aiInteractionLevel  String?  // e.g., "none", "suggestions", "full"
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // --- Relations ---
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

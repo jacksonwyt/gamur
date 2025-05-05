@@ -126,12 +126,123 @@ exports.Prisma.UserScalarFieldEnum = {
   updatedAt: 'updatedAt',
   email: 'email',
   password: 'password',
-  name: 'name'
+  name: 'name',
+  hashedRefreshToken: 'hashedRefreshToken'
+};
+
+exports.Prisma.ProfileScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  username: 'username',
+  avatarConfig: 'avatarConfig',
+  currentLevel: 'currentLevel',
+  currentXP: 'currentXP',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.HabitDefinitionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  description: 'description',
+  frequency: 'frequency',
+  target: 'target',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.HabitLogScalarFieldEnum = {
+  id: 'id',
+  habitId: 'habitId',
+  userId: 'userId',
+  completionDate: 'completionDate',
+  notes: 'notes',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.HealthLogScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  date: 'date',
+  metricType: 'metricType',
+  value: 'value',
+  source: 'source',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.BadgeDefinitionScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  criteria: 'criteria',
+  icon: 'icon',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.UserBadgeScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  badgeId: 'badgeId',
+  earnedDate: 'earnedDate'
+};
+
+exports.Prisma.QuestDefinitionScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  title: 'title',
+  description: 'description',
+  criteria: 'criteria',
+  xpReward: 'xpReward',
+  badgeRewardId: 'badgeRewardId',
+  isActive: 'isActive',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.UserQuestProgressScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  questId: 'questId',
+  status: 'status',
+  progressData: 'progressData',
+  startDate: 'startDate',
+  completionDate: 'completionDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AIOutputScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  text: 'text',
+  relatedQuestId: 'relatedQuestId',
+  createdAt: 'createdAt',
+  seenByUser: 'seenByUser'
+};
+
+exports.Prisma.UserSettingsScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  notificationPrefs: 'notificationPrefs',
+  privacyFlags: 'privacyFlags',
+  aiInteractionLevel: 'aiInteractionLevel',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -144,9 +255,55 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+exports.HealthMetricType = exports.$Enums.HealthMetricType = {
+  MOOD: 'MOOD',
+  SLEEP_HOURS: 'SLEEP_HOURS',
+  SLEEP_QUALITY: 'SLEEP_QUALITY',
+  STEPS: 'STEPS'
+};
+
+exports.HealthDataSource = exports.$Enums.HealthDataSource = {
+  MANUAL: 'MANUAL',
+  APPLE_HEALTH: 'APPLE_HEALTH',
+  GOOGLE_FIT: 'GOOGLE_FIT'
+};
+
+exports.QuestType = exports.$Enums.QuestType = {
+  USER_DEFINED: 'USER_DEFINED',
+  AI_SUGGESTED: 'AI_SUGGESTED',
+  MAP_BASED: 'MAP_BASED'
+};
+
+exports.QuestStatus = exports.$Enums.QuestStatus = {
+  ACTIVE: 'ACTIVE',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.AIOutputType = exports.$Enums.AIOutputType = {
+  INSIGHT: 'INSIGHT',
+  SUGGESTION: 'SUGGESTION',
+  MICRO_QUEST: 'MICRO_QUEST'
+};
 
 exports.Prisma.ModelName = {
-  User: 'User'
+  User: 'User',
+  Profile: 'Profile',
+  HabitDefinition: 'HabitDefinition',
+  HabitLog: 'HabitLog',
+  HealthLog: 'HealthLog',
+  BadgeDefinition: 'BadgeDefinition',
+  UserBadge: 'UserBadge',
+  QuestDefinition: 'QuestDefinition',
+  UserQuestProgress: 'UserQuestProgress',
+  AIOutput: 'AIOutput',
+  UserSettings: 'UserSettings'
 };
 
 /**

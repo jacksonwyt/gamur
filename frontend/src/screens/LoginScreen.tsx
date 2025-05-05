@@ -1,23 +1,68 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Text, TextInput, Button } from 'react-native-paper'; // Using Paper components
+import { Text, TextInput, Button, ActivityIndicator } from 'react-native-paper'; // Add ActivityIndicator
+import { useAuth } from '../contexts/AuthContext'; // Import useAuth hook
 import { NativeStackScreenProps } from '@react-navigation/native-stack'; // Import navigation types
 import { MainStackParamList } from '../navigation/MainNavigator'; // Import stack param list
+import apiClient from '../api/client'; // Import the apiClient
+
+// TODO: Define a proper type for the login response (e.g., containing a token)
+interface LoginResponse {
+  accessToken: string;
+  // Add other expected fields from the backend response if necessary
+}
 
 // Define props type including navigation
 type LoginScreenProps = NativeStackScreenProps<MainStackParamList, 'Login'>;
 
 export function LoginScreen({ navigation }: LoginScreenProps) { // Destructure navigation prop
-  // Placeholder state and handlers will go here
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const { login } = useAuth(); // Get login function from context
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // Add loading state
+  const [error, setError] = useState<string | null>(null); // Add error state
 
-  function handleLogin() {
-    // TODO: Implement real login logic (API call, state update)
-    console.log('Login attempt:', email);
-    // Navigate to Home on successful login (placeholder)
-    navigation.replace('Home'); // Use replace to prevent going back to Login
+  async function handleLogin() { // Make the function async
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // TODO: Update the endpoint if your backend route is different
+      const response = await apiClient.post<LoginResponse>('/auth/login', {
+        email,
+        password,
+      });
+
+      // Assuming the response contains an accessToken
+      const { accessToken } = response.data;
+
+      // TODO: Securely store the access token (e.g., using expo-secure-store)
+      // console.log('Login successful, token:', accessToken);
+      try {
+        await login(accessToken); // Use the login function from AuthContext
+        console.log('Token stored and context updated');
+
+        // TODO: Update global auth state (e.g., using Context API)
+
+        // Navigate to Home on successful login
+        navigation.replace('Home');
+      } catch (storeError) {
+          console.error('Failed to store the auth token via context:', storeError);
+          // Handle storage error, maybe show an alert to the user
+          Alert.alert('Storage Error', 'Could not save login information.');
+          // Optionally, don't navigate if storage fails, or log the user out.
+          setError('Failed to save login session.'); // Update error state
+      }
+
+    } catch (err: any) { // Catch errors
+      console.error('Login failed:', err.response?.data || err.message);
+      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+      // Optionally show an alert
+      Alert.alert('Login Error', error || 'An unexpected error occurred.');
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   function handleNavigateToSignUp() {
@@ -30,6 +75,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) { // Destructure n
         <Text variant="headlineMedium" style={styles.title}>
           Login
         </Text>
+        {error && <Text style={styles.errorText}>{error}</Text>} // Display error message
         <TextInput
           label="Email"
           value={email}
@@ -38,6 +84,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) { // Destructure n
           style={styles.input}
           keyboardType="email-address"
           autoCapitalize="none"
+          disabled={isLoading} // Disable input when loading
         />
         <TextInput
           label="Password"
@@ -46,12 +93,33 @@ export function LoginScreen({ navigation }: LoginScreenProps) { // Destructure n
           mode="outlined"
           style={styles.input}
           secureTextEntry
+          disabled={isLoading} // Disable input when loading
         />
-        <Button mode="contained" onPress={handleLogin} style={styles.button}>
-          Login
+        <Button
+          mode="contained"
+          onPress={handleLogin}
+          style={styles.button}
+          disabled={isLoading} // Disable button when loading
+          loading={isLoading} // Show loading indicator in button
+        >
+          {isLoading ? 'Logging in...' : 'Login'}
         </Button>
-        <Button mode="text" onPress={handleNavigateToSignUp} style={styles.button}>
+        <Button
+          mode="text"
+          onPress={handleNavigateToSignUp}
+          style={styles.button}
+          disabled={isLoading} // Disable button when loading
+        >
           Don't have an account? Sign Up
+        </Button>
+        <Button
+          mode="text"
+          onPress={() => navigation.navigate('ForgotPassword')}
+          style={styles.forgotPasswordButton}
+          labelStyle={styles.forgotPasswordLabel}
+          disabled={isLoading}
+        >
+          Forgot Password?
         </Button>
       </View>
     </SafeAreaView>
@@ -79,5 +147,18 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 8,
     width: '100%',
+  },
+  forgotPasswordButton: {
+    marginTop: 4,
+    alignSelf: 'center',
+  },
+  forgotPasswordLabel: {
+    fontSize: 12,
+    textDecorationLine: 'underline',
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 16,
+    textAlign: 'center',
   },
 }); 
