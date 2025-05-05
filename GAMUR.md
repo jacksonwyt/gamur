@@ -1,4 +1,4 @@
-Okay, let's break down the GAMUR MVP vision into a more detailed technical outline, focusing on best practices, SOLID principles, and a step-by-step approach for development.
+
 
 **Guiding Principles:**
 
@@ -245,6 +245,5 @@ The immediate goal is to start building the visual elements and layout using Rea
 8.  **Build Habit Screens (Frontend):** Implement functionality in `HabitListScreen` and `CreateHabitScreen` (forms, API calls). **[Not Started]**
 9.  **Build Habit Service (Backend):** Create the NestJS service, controller, module, and implement logic utilizing the generated Prisma client for habit management. **[Needs Implementation - Prisma Client Available]**
 
-**Instructions for LLM:**
 
 This detailed outline provides a technical roadmap for building the GAMUR MVP. Each phase builds upon the previous one, focusing on delivering specific functionality while adhering to SOLID principles and best practices for a scalable and maintainable application. Remember to refine data models and API contracts as development progresses. **Prisma schemas for MVP features are now defined.**
