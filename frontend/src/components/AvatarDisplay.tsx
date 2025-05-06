@@ -1,11 +1,11 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Avatar, Text } from 'react-native-paper';
+import React from 'react'
+import { View, StyleSheet } from 'react-native'
+import { Avatar, Text } from 'react-native-paper'
 
 // Props might include avatarConfig, size, onPress, etc.
 interface AvatarDisplayProps {
   // Example prop: config?: { body?: string; color?: string };
-  size?: number;
+  size?: number
 }
 
 export function AvatarDisplay({ size = 80 }: AvatarDisplayProps) {
@@ -16,7 +16,7 @@ export function AvatarDisplay({ size = 80 }: AvatarDisplayProps) {
       <Avatar.Icon size={size} icon="account" style={styles.avatar} />
       {/* <Text>(Avatar Placeholder)</Text> */}
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -27,4 +27,4 @@ const styles = StyleSheet.create({
   avatar: {
     // Add any specific styling needed
   },
-}); 
+})

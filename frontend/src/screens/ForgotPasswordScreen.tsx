@@ -1,30 +1,28 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Text, Button, useTheme } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
+import React from 'react'
+import { View, StyleSheet } from 'react-native'
+import { Text, Button, useTheme } from 'react-native-paper'
+import { useNavigation } from '@react-navigation/native'
 
 export function ForgotPasswordScreen() {
-  const theme = useTheme();
-  const navigation = useNavigation();
+  const theme = useTheme()
+  const navigation = useNavigation()
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Text variant="headlineMedium" style={styles.title}>
         Forgot Password
       </Text>
-      <Text style={styles.subtitle}>
-        (Functionality coming soon)
-      </Text>
+      <Text style={styles.subtitle}>(Functionality coming soon)</Text>
       {/* Placeholder for email input and submit button */}
       <Button
         mode="outlined"
         onPress={() => navigation.goBack()}
-        style={styles.button}
-      >
+        style={styles.button}>
         Back to Login
       </Button>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -46,4 +44,4 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 20,
   },
-}); 
+})

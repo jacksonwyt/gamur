@@ -8,4 +8,4 @@ export class UpdateProfileDto {
   username?: string;
 
   // Add other updatable profile fields here later (e.g., avatarConfig)
-} 
+}

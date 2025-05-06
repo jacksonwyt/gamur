@@ -1,63 +1,62 @@
-import React from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native'; // Added StyleSheet
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useAuth } from '../contexts/AuthContext'; // Import useAuth
-import { HomeScreen } from '../screens/HomeScreen'; // Import the placeholder screen
-import { LoginScreen } from '../screens/LoginScreen'; // Import LoginScreen
-import { SignUpScreen } from '../screens/SignUpScreen'; // Import SignUpScreen
-import { HabitListScreen } from '../screens/HabitListScreen'; // Import HabitListScreen
-import { CreateHabitScreen } from '../screens/CreateHabitScreen'; // Import CreateHabitScreen
-import { ProfileScreen } from '../screens/ProfileScreen'; // Import ProfileScreen
-import { SettingsScreen } from '../screens/SettingsScreen'; // Import SettingsScreen
-import { HabitDetailScreen } from '../screens/HabitDetailScreen'; // Import HabitDetailScreen
-import { EditProfileScreen } from '../screens/EditProfileScreen'; // Import the new screen
-import { ForgotPasswordScreen } from '../screens/ForgotPasswordScreen'; // Import ForgotPasswordScreen
+import React from 'react'
+import { View, ActivityIndicator, StyleSheet } from 'react-native' // Added StyleSheet
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { useAuth } from '../contexts/AuthContext' // Import useAuth
+import { HomeScreen } from '../screens/HomeScreen' // Import the placeholder screen
+import { LoginScreen } from '../screens/LoginScreen' // Import LoginScreen
+import { SignUpScreen } from '../screens/SignUpScreen' // Import SignUpScreen
+import { HabitListScreen } from '../screens/HabitListScreen' // Import HabitListScreen
+import { CreateHabitScreen } from '../screens/CreateHabitScreen' // Import CreateHabitScreen
+import { ProfileScreen } from '../screens/ProfileScreen' // Import ProfileScreen
+import { SettingsScreen } from '../screens/SettingsScreen' // Import SettingsScreen
+import { HabitDetailScreen } from '../screens/HabitDetailScreen' // Import HabitDetailScreen
+import { EditProfileScreen } from '../screens/profile/EditProfileScreen' // Import the new screen
+import { ForgotPasswordScreen } from '../screens/ForgotPasswordScreen' // Import ForgotPasswordScreen
 
 // Define the type for the stack parameters
 export type MainStackParamList = {
-  Home: undefined; // No params expected for Home screen
-  Login: undefined; // Added Login screen
-  SignUp: undefined; // Added SignUp screen
-  HabitList: undefined; // Add HabitList route
-  CreateHabit: undefined; // Add CreateHabit route
-  Profile: undefined; // Added Profile screen
-  Settings: undefined; // Added Settings screen
-  HabitDetail: { habitId: string }; // Added HabitDetail screen (will need ID)
-  EditProfile: { currentUsername?: string }; // Define parameters for EditProfile
-  ForgotPassword: undefined; // Add ForgotPassword screen
+  Home: undefined // No params expected for Home screen
+  Login: undefined // Added Login screen
+  SignUp: undefined // Added SignUp screen
+  HabitList: undefined // Add HabitList route
+  CreateHabit: undefined // Add CreateHabit route
+  Profile: undefined // Added Profile screen
+  Settings: undefined // Added Settings screen
+  HabitDetail: { habitId: string } // Added HabitDetail screen (will need ID)
+  EditProfile: { currentUsername?: string } // Define parameters for EditProfile
+  ForgotPassword: undefined // Add ForgotPassword screen
   // Add other screens here later, e.g., Login: undefined;
-};
+}
 
-const Stack = createNativeStackNavigator<MainStackParamList>();
+const Stack = createNativeStackNavigator<MainStackParamList>()
 
 // Define the Auth stack component
 function AuthStack() {
   return (
-    <Stack.Navigator 
+    <Stack.Navigator
       initialRouteName="Login"
-      screenOptions={{ headerShown: false }} 
-    >
+      screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="SignUp" component={SignUpScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
     </Stack.Navigator>
-  );
+  )
 }
 
 // Define the App stack component
 function AppStack() {
   return (
-    <Stack.Navigator 
+    <Stack.Navigator
       initialRouteName="Home" // Default to Home when logged in
       screenOptions={{ headerShown: false }} // Default to no header
     >
-      <Stack.Screen 
-        name="Home" 
-        component={HomeScreen} 
-        options={{ 
-          title: 'Dashboard', 
-          headerShown: true // Show header only for Home/Dashboard
-        }} 
+      <Stack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          title: 'Dashboard',
+          headerShown: true, // Show header only for Home/Dashboard
+        }}
       />
       <Stack.Screen
         name="HabitList"
@@ -86,11 +85,11 @@ function AppStack() {
       />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
     </Stack.Navigator>
-  );
+  )
 }
 
 export function MainNavigator() {
-  const { token, isLoading } = useAuth();
+  const { token, isLoading } = useAuth()
 
   if (isLoading) {
     // Show a loading screen while checking for the token
@@ -98,11 +97,11 @@ export function MainNavigator() {
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" />
       </View>
-    );
+    )
   }
 
   // Conditionally render AuthStack or AppStack based on token
-  return token ? <AppStack /> : <AuthStack />;
+  return token ? <AppStack /> : <AuthStack />
 }
 
 // Added StyleSheet for loading container
@@ -112,4 +111,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-}); 
+})

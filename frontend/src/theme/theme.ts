@@ -1,4 +1,4 @@
-import { MD3LightTheme as DefaultTheme } from 'react-native-paper';
+import { MD3LightTheme as DefaultTheme } from 'react-native-paper'
 
 const theme = {
   ...DefaultTheme,
@@ -9,6 +9,6 @@ const theme = {
     accent: '#03dac4', // Example accent color
   },
   // Add custom fonts, roundness, etc. later
-};
+}
 
-export default theme; 
+export default theme

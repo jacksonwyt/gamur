@@ -1,58 +1,78 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Text, TextInput, Button, ActivityIndicator } from 'react-native-paper';
-import { useAuth } from '../contexts/AuthContext';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { MainStackParamList } from '../navigation/MainNavigator';
-import apiClient from '../api/client';
+import React, { useState } from 'react'
+import { View, StyleSheet, Alert } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { Text, TextInput, Button, ActivityIndicator } from 'react-native-paper'
+import { useAuth } from '../contexts/AuthContext'
+import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { MainStackParamList } from '../navigation/MainNavigator'
+import apiClient from '../api/client'
 
 interface SignUpResponse {
-  accessToken: string;
+  accessToken: string
 }
 
-type SignUpScreenProps = NativeStackScreenProps<MainStackParamList, 'SignUp'>;
+type SignUpScreenProps = NativeStackScreenProps<MainStackParamList, 'SignUp'>
 
 export function SignUpScreen({ navigation }: SignUpScreenProps) {
-  const { login } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { login } = useAuth()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function handleSignUp() {
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match.');
-      return;
+      Alert.alert('Error', 'Passwords do not match.')
+      return
     }
 
-    setIsLoading(true);
-    setError(null);
+    setIsLoading(true)
+    setError(null)
 
     try {
       const response = await apiClient.post<SignUpResponse>('/auth/register', {
         email,
         password,
-      });
+      })
 
-      const { accessToken } = response.data;
+      // Log the raw response data to understand its structure
+      console.log('API Response data:', JSON.stringify(response.data, null, 2))
 
-      await login(accessToken);
-      console.log('Sign up successful, token stored via context');
+      const { accessToken } = response.data
 
+      // Log the extracted token and its type for verification
+      console.log('Extracted accessToken:', accessToken)
+      console.log('Type of accessToken:', typeof accessToken)
+
+      // Ensure accessToken is a string before proceeding
+      if (typeof accessToken !== 'string') {
+        console.error(
+          'Sign up error: accessToken is not a string.',
+          accessToken,
+        )
+        const errorMessage = 'Received invalid token format from the server.'
+        setError(errorMessage)
+        Alert.alert('Sign Up Error', errorMessage)
+        setIsLoading(false) // Ensure loading state is reset
+        return // Stop execution if token is invalid
+      }
+
+      await login(accessToken)
+      console.log('Sign up successful, token stored via context')
     } catch (err: any) {
-      console.error('Sign up failed:', err.response?.data || err.message);
-      const errorMessage = err.response?.data?.message || 'Sign up failed. Please try again.';
-      setError(errorMessage);
-      Alert.alert('Sign Up Error', errorMessage);
+      console.error('Sign up failed:', err.response?.data || err.message)
+      const errorMessage =
+        err.response?.data?.message || 'Sign up failed. Please try again.'
+      setError(errorMessage)
+      Alert.alert('Sign Up Error', errorMessage)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   }
 
   function handleNavigateToLogin() {
-    navigation.navigate('Login');
+    navigation.navigate('Login')
   }
 
   return (
@@ -90,26 +110,24 @@ export function SignUpScreen({ navigation }: SignUpScreenProps) {
           secureTextEntry
           disabled={isLoading}
         />
-        <Button 
-          mode="contained" 
-          onPress={handleSignUp} 
+        <Button
+          mode="contained"
+          onPress={handleSignUp}
           style={styles.button}
           disabled={isLoading}
-          loading={isLoading}
-        >
+          loading={isLoading}>
           {isLoading ? 'Signing Up...' : 'Sign Up'}
         </Button>
-        <Button 
-          mode="text" 
-          onPress={handleNavigateToLogin} 
+        <Button
+          mode="text"
+          onPress={handleNavigateToLogin}
           style={styles.button}
-          disabled={isLoading}
-        >
+          disabled={isLoading}>
           Already have an account? Login
         </Button>
       </View>
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -139,4 +157,4 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     textAlign: 'center',
   },
-}); 
+})

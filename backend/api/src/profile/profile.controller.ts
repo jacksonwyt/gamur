@@ -33,4 +33,4 @@ export class ProfileController {
     const userId = req.user.userId;
     return this.profileService.updateUserProfile(userId, updateProfileDto);
   }
-} 
+}

@@ -8,7 +8,8 @@ export class ProfileService {
   constructor(private prisma: PrismaService) {}
 
   // Method to get user profile
-  async getUserProfile(userId: string): Promise<Profile> { // Return type Profile
+  async getUserProfile(userId: string): Promise<Profile> {
+    // Return type Profile
     try {
       // Fetch from the profile table using userId
       const profile = await this.prisma.profile.findUniqueOrThrow({
@@ -33,7 +34,11 @@ export class ProfileService {
   }
 
   // Method to update user profile
-  async updateUserProfile(userId: string, data: UpdateProfileDto): Promise<Profile> { // Return type Profile
+  async updateUserProfile(
+    userId: string,
+    data: UpdateProfileDto,
+  ): Promise<Profile> {
+    // Return type Profile
     try {
       // Update the profile table using userId
       const updatedProfile = await this.prisma.profile.update({
@@ -57,13 +62,13 @@ export class ProfileService {
       // Prisma might throw specific errors (e.g., P2025 RecordNotFound)
       // Check if the error is specifically a record not found error
       if (error.code === 'P2025') {
-         throw new NotFoundException(
-           `Could not update profile for user with ID "${userId}". Profile not found.`,
-         );
+        throw new NotFoundException(
+          `Could not update profile for user with ID "${userId}". Profile not found.`,
+        );
       }
       // Re-throw other unexpected errors
       console.error('Error updating profile:', error);
       throw new Error(`Failed to update profile for user ID "${userId}".`);
     }
   }
-} 
+}

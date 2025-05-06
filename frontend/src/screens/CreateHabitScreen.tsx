@@ -1,33 +1,43 @@
-import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Appbar, Button, HelperText, Text, TextInput, Title } from 'react-native-paper';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../navigation/MainNavigator'; // Adjust path as necessary
+import React, { useState } from 'react'
+import { StyleSheet, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import {
+  Appbar,
+  Button,
+  HelperText,
+  Text,
+  TextInput,
+  Title,
+} from 'react-native-paper'
+import type { NativeStackScreenProps } from '@react-navigation/native-stack'
+import type { RootStackParamList } from '../navigation/MainNavigator' // Adjust path as necessary
 
-type CreateHabitScreenProps = NativeStackScreenProps<RootStackParamList, 'CreateHabit'>;
+type CreateHabitScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  'CreateHabit'
+>
 
 export function CreateHabitScreen({ navigation }: CreateHabitScreenProps) {
-  const [habitName, setHabitName] = useState('');
-  const [description, setDescription] = useState('');
-  const [nameError, setNameError] = useState<string | null>(null);
+  const [habitName, setHabitName] = useState('')
+  const [description, setDescription] = useState('')
+  const [nameError, setNameError] = useState<string | null>(null)
 
   // TODO: Add form validation (e.g., with Zod)
   function validateForm(): boolean {
     if (!habitName.trim()) {
-      setNameError('Habit name cannot be empty.');
-      return false;
+      setNameError('Habit name cannot be empty.')
+      return false
     }
-    setNameError(null); // Clear error if valid
-    return true;
+    setNameError(null) // Clear error if valid
+    return true
   }
 
   function handleSave() {
     if (validateForm()) {
-      console.log('Saving Habit:', { name: habitName, description });
+      console.log('Saving Habit:', { name: habitName, description })
       // TODO: Implement actual save logic (API call)
       // TODO: Navigate back or to habit detail screen after save
-      navigation.goBack(); // Navigate back for now
+      navigation.goBack() // Navigate back for now
     }
   }
 
@@ -43,9 +53,9 @@ export function CreateHabitScreen({ navigation }: CreateHabitScreenProps) {
         <TextInput
           label="Habit Name"
           value={habitName}
-          onChangeText={(text) => {
-            setHabitName(text);
-            if (nameError) setNameError(null); // Clear error on type
+          onChangeText={text => {
+            setHabitName(text)
+            if (nameError) setNameError(null) // Clear error on type
           }}
           mode="outlined"
           style={styles.input}
@@ -66,16 +76,12 @@ export function CreateHabitScreen({ navigation }: CreateHabitScreenProps) {
 
         {/* TODO: Add fields for frequency, icon selection, etc. */}
 
-        <Button
-          mode="contained"
-          onPress={handleSave}
-          style={styles.button}
-        >
+        <Button mode="contained" onPress={handleSave} style={styles.button}>
           Save Habit
         </Button>
       </View>
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -92,4 +98,4 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 16,
   },
-}); 
+})
