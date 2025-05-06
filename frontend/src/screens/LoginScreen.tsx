@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { View, StyleSheet, Alert } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Text, TextInput, Button, ActivityIndicator } from 'react-native-paper' // Add ActivityIndicator
+import { Text, TextInput, Button } from 'react-native-paper' // Removed ActivityIndicator
 import { useAuth } from '../contexts/AuthContext' // Import useAuth hook
 import { NativeStackScreenProps } from '@react-navigation/native-stack' // Import navigation types
 import { MainStackParamList } from '../navigation/MainNavigator' // Import stack param list
@@ -36,8 +36,10 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
         password,
       })
 
-      // Assuming the response contains an accessToken
-      const { accessToken } = response.data
+      console.log('Backend login response data:', JSON.stringify(response.data, null, 2));
+      const { access_token: accessToken } = response.data;
+      console.log('Extracted accessToken:', accessToken);
+      console.log('Type of accessToken:', typeof accessToken);
 
       // TODO: Securely store the access token (e.g., using expo-secure-store)
       // console.log('Login successful, token:', accessToken);
@@ -56,12 +58,32 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
         // Optionally, don't navigate if storage fails, or log the user out.
         setError('Failed to save login session.') // Update error state
       }
-    } catch (err: any) {
+    } catch (err) {
       // Catch errors
-      console.error('Login failed:', err.response?.data || err.message)
-      const errorMessage =
-        err.response?.data?.message ||
-        'Login failed. Please check your credentials.'
+      // Type err more specifically if possible, e.g., AxiosError
+      let errorMessage = 'Login failed. Please check your credentials.'
+      if (
+        err instanceof Error &&
+        'response' in err &&
+        err.response &&
+        typeof err.response === 'object' &&
+        err.response !== null &&
+        'data' in err.response &&
+        err.response.data &&
+        typeof err.response.data === 'object' &&
+        err.response.data !== null &&
+        'message' in err.response.data
+      ) {
+        errorMessage =
+          (err.response.data as { message: string }).message || errorMessage
+        console.error('Login failed:', err.response.data)
+      } else if (err instanceof Error) {
+        errorMessage = err.message
+        console.error('Login failed:', err.message)
+      } else {
+        console.error('Login failed with unknown error type:', err)
+      }
+
       setError(errorMessage)
       // Optionally show an alert
       Alert.alert(
@@ -83,8 +105,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
         <Text variant="headlineMedium" style={styles.title}>
           Login
         </Text>
-        {error && <Text style={styles.errorText}>{error}</Text>} // Display
-        error message
+        {error && <Text style={styles.errorText}>{error}</Text>}
         <TextInput
           label="Email"
           value={email}
@@ -119,7 +140,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
           style={styles.button}
           disabled={isLoading} // Disable button when loading
         >
-          Don't have an account? Sign Up
+          Don&apos;t have an account? Sign Up
         </Button>
         <Button
           mode="text"

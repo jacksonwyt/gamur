@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { View, StyleSheet, Alert } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Text, TextInput, Button, ActivityIndicator } from 'react-native-paper'
+import { Text, TextInput, Button } from 'react-native-paper'
 import { useAuth } from '../contexts/AuthContext'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { MainStackParamList } from '../navigation/MainNavigator'
@@ -60,10 +60,28 @@ export function SignUpScreen({ navigation }: SignUpScreenProps) {
 
       await login(accessToken)
       console.log('Sign up successful, token stored via context')
-    } catch (err: any) {
-      console.error('Sign up failed:', err.response?.data || err.message)
-      const errorMessage =
-        err.response?.data?.message || 'Sign up failed. Please try again.'
+    } catch (err) {
+      let errorMessage = 'Sign up failed. Please try again.'
+      // Check if it's an Axios-like error with a response object
+      if (
+        err &&
+        typeof err === 'object' &&
+        'response' in err &&
+        err.response &&
+        typeof err.response === 'object' &&
+        err.response !== null
+      ) {
+        const responseError = err.response as { data?: { message?: string } } // Basic type for response data
+        if (responseError.data?.message) {
+          errorMessage = responseError.data.message
+        }
+        console.error('Sign up failed:', responseError.data || err.message)
+      } else if (err instanceof Error) {
+        errorMessage = err.message
+        console.error('Sign up failed:', err.message)
+      } else {
+        console.error('Sign up failed with unknown error type:', err)
+      }
       setError(errorMessage)
       Alert.alert('Sign Up Error', errorMessage)
     } finally {

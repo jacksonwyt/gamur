@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from './prisma/prisma.service'; // Assuming prisma service path
+import { PrismaService } from '../../prisma/prisma.service';
 
 // Define the structure of the JWT payload after validation
 export interface JwtPayload {

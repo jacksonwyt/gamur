@@ -12,7 +12,7 @@ import * as SecureStore from 'expo-secure-store'
 // On Physical Device: Replace 'localhost' with your computer's network IP address.
 // Find your IP: macOS (ifconfig | grep 'inet ' | grep -v '127.0.0.1'), Windows (ipconfig)
 // const DEV_BACKEND_URL = 'http://192.168.0.197:3000/api'; // <- !!! REPLACE with your actual IP:PORT/api if needed !!!
-const DEV_BACKEND_URL = 'http://192.168.0.197:3000' // <- !!! REMOVED /api - REPLACE with your actual IP:PORT if needed !!!
+const DEV_BACKEND_URL = 'http://192.168.0.197:3000/api' // <- !!! REMOVED /api - REPLACE with your actual IP:PORT if needed !!!
 
 // Prefer the environment variable if set, otherwise use the dev URL
 const baseURL = Constants?.expoConfig?.extra?.apiUrl || DEV_BACKEND_URL
@@ -35,9 +35,13 @@ apiClient.interceptors.request.use(
     try {
       // Retrieve token from secure storage (adjust key if different)
       const token = await SecureStore.getItemAsync('authToken')
+      console.log('[Interceptor] Token from SecureStore:', token);
       if (token) {
         // If token exists, add it to the Authorization header
         config.headers.Authorization = `Bearer ${token}`
+        console.log('[Interceptor] Authorization header set:', config.headers.Authorization);
+      } else {
+        console.log('[Interceptor] No token found in SecureStore.');
       }
     } catch (e) {
       // Handle potential errors fetching the token

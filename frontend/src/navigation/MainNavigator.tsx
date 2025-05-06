@@ -12,6 +12,7 @@ import { SettingsScreen } from '../screens/SettingsScreen' // Import SettingsScr
 import { HabitDetailScreen } from '../screens/HabitDetailScreen' // Import HabitDetailScreen
 import { EditProfileScreen } from '../screens/profile/EditProfileScreen' // Import the new screen
 import { ForgotPasswordScreen } from '../screens/ForgotPasswordScreen' // Import ForgotPasswordScreen
+import { EditHabitScreen } from '../screens/EditHabitScreen' // Import EditHabitScreen
 
 // Define the type for the stack parameters
 export type MainStackParamList = {
@@ -20,6 +21,7 @@ export type MainStackParamList = {
   SignUp: undefined // Added SignUp screen
   HabitList: undefined // Add HabitList route
   CreateHabit: undefined // Add CreateHabit route
+  EditHabit: { habitId: string } // Added EditHabit route
   Profile: undefined // Added Profile screen
   Settings: undefined // Added Settings screen
   HabitDetail: { habitId: string } // Added HabitDetail screen (will need ID)
@@ -67,6 +69,11 @@ function AppStack() {
         name="CreateHabit"
         component={CreateHabitScreen}
         options={{ headerShown: false }} // CreateHabitScreen has its own Appbar
+      />
+      <Stack.Screen
+        name="EditHabit"
+        component={EditHabitScreen} // This component will be created next
+        options={{ headerShown: false }} // EditHabitScreen will have its own Appbar
       />
       <Stack.Screen
         name="Profile"

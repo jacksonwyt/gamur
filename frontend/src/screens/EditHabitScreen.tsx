@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { StyleSheet, View, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import {
@@ -9,24 +9,25 @@ import {
   Title,
   Snackbar,
   ActivityIndicator,
+  Text,
 } from 'react-native-paper'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 
-import type { RootStackParamList } from '../navigation/MainNavigator' // Adjust path as necessary
+import type { MainStackParamList } from '../navigation/MainNavigator'
 import { habitService } from '../api/habitService'
-import type { CreateHabitPayload } from '../types/habit'
+import type { UpdateHabitPayload, Habit } from '../types/habit'
 
-type CreateHabitScreenProps = NativeStackScreenProps<
-  RootStackParamList,
-  'CreateHabit'
+type EditHabitScreenProps = NativeStackScreenProps<
+  MainStackParamList,
+  'EditHabit' // Corrected to EditHabit
 >
 
 interface FormState {
   name: string
   description: string
   frequency: string
-  target: string // Store as string for TextInput, convert to number on submit
+  target: string
 }
 
 interface FormErrors {
@@ -35,27 +36,54 @@ interface FormErrors {
   target?: string
 }
 
-export function CreateHabitScreen({ navigation }: CreateHabitScreenProps) {
+export function EditHabitScreen({ route, navigation }: EditHabitScreenProps) {
+  const { habitId } = route.params
   const queryClient = useQueryClient()
+
   const [formState, setFormState] = useState<FormState>({
     name: '',
     description: '',
-    frequency: '', // e.g., 'daily', 'weekly'
-    target: '', // e.g., '1', '5'
+    frequency: '',
+    target: '',
   })
   const [errors, setErrors] = useState<FormErrors>({})
   const [snackbarVisible, setSnackbarVisible] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState('')
 
-  const createHabitMutation = useMutation<unknown, Error, CreateHabitPayload>({
-    // Explicitly type mutation
-    mutationFn: habitService.createHabit,
-    onSuccess: () => {
+  const {
+    data: existingHabit,
+    isLoading: isLoadingHabit,
+    isError: isErrorLoadingHabit,
+    error: loadingError,
+  } = useQuery<Habit, Error>({
+    queryKey: ['habit', habitId],
+    queryFn: () => habitService.getHabitById(habitId),
+    enabled: !!habitId, // Only run query if habitId is available
+  })
+
+  useEffect(() => {
+    if (existingHabit) {
+      setFormState({
+        name: existingHabit.name,
+        description: existingHabit.description || '',
+        frequency: existingHabit.frequency,
+        target: existingHabit.target?.toString() || '',
+      })
+    }
+  }, [existingHabit])
+
+  const updateHabitMutation = useMutation<Habit, Error, UpdateHabitPayload>({
+    mutationFn: (payload: UpdateHabitPayload) =>
+      habitService.updateHabit(habitId, payload),
+    onSuccess: (data: Habit) => {
       queryClient.invalidateQueries({ queryKey: ['habits'] })
+      queryClient.invalidateQueries({ queryKey: ['habit', habitId] })
+      // Optionally, update the cache directly if `data` is the updated habit
+      // queryClient.setQueryData(['habit', habitId], data);
       navigation.goBack()
     },
-    onError: error => {
-      setSnackbarMessage(`Error creating habit: ${error.message}`)
+    onError: (error: Error) => {
+      setSnackbarMessage(`Error updating habit: ${error.message}`)
       setSnackbarVisible(true)
     },
   })
@@ -69,44 +97,68 @@ export function CreateHabitScreen({ navigation }: CreateHabitScreenProps) {
 
   function validateForm(): boolean {
     const newErrors: FormErrors = {}
-    if (!formState.name.trim()) {
-      newErrors.name = 'Habit name cannot be empty.'
-    }
-    if (!formState.frequency.trim()) {
+    if (!formState.name.trim()) newErrors.name = 'Habit name cannot be empty.'
+    if (!formState.frequency.trim())
       newErrors.frequency = 'Frequency cannot be empty.'
-    }
-    if (formState.target.trim() && isNaN(Number(formState.target))) {
+    if (formState.target.trim() && isNaN(Number(formState.target)))
       newErrors.target = 'Target must be a number.'
-    }
-    if (formState.target.trim() && Number(formState.target) <= 0) {
-      newErrors.target = 'Target must be greater than 0.'
-    }
-
+    if (formState.target.trim() && Number(formState.target) <= 0)
+      newErrors.target = 'Target must be > 0.'
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
   function handleSave() {
     if (!validateForm()) return
-
-    const payload: CreateHabitPayload = {
+    const payload: UpdateHabitPayload = {
       name: formState.name.trim(),
       description: formState.description.trim() || undefined,
       frequency: formState.frequency.trim(),
       target: formState.target.trim() ? Number(formState.target) : undefined,
     }
-    createHabitMutation.mutate(payload)
+    updateHabitMutation.mutate(payload)
+  }
+
+  if (isLoadingHabit) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <Appbar.Header>
+          <Appbar.BackAction onPress={() => navigation.goBack()} />
+          <Appbar.Content title="Edit Habit" />
+        </Appbar.Header>
+        <View style={styles.centeredMessage}>
+          <ActivityIndicator animating={true} size="large" />
+          <Text style={styles.messageText}>Loading habit...</Text>
+        </View>
+      </SafeAreaView>
+    )
+  }
+
+  if (isErrorLoadingHabit) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <Appbar.Header>
+          <Appbar.BackAction onPress={() => navigation.goBack()} />
+          <Appbar.Content title="Edit Habit" />
+        </Appbar.Header>
+        <View style={styles.centeredMessage}>
+          <Text style={styles.errorText}>
+            Error: {loadingError?.message || 'Could not load habit details.'}
+          </Text>
+        </View>
+      </SafeAreaView>
+    )
   }
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Appbar.Header>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title="Create New Habit" />
+        <Appbar.Content title="Edit Habit" />
       </Appbar.Header>
       <ScrollView contentContainerStyle={styles.scrollContentContainer}>
         <View style={styles.content}>
-          <Title>Define Your Habit</Title>
+          <Title>Update Your Habit</Title>
 
           <TextInput
             label="Habit Name *"
@@ -115,7 +167,7 @@ export function CreateHabitScreen({ navigation }: CreateHabitScreenProps) {
             mode="outlined"
             style={styles.input}
             error={!!errors.name}
-            disabled={createHabitMutation.isPending}
+            disabled={updateHabitMutation.isPending}
           />
           <HelperText type="error" visible={!!errors.name}>
             {errors.name}
@@ -129,7 +181,7 @@ export function CreateHabitScreen({ navigation }: CreateHabitScreenProps) {
             style={styles.input}
             multiline
             numberOfLines={3}
-            disabled={createHabitMutation.isPending}
+            disabled={updateHabitMutation.isPending}
           />
 
           <TextInput
@@ -139,7 +191,7 @@ export function CreateHabitScreen({ navigation }: CreateHabitScreenProps) {
             mode="outlined"
             style={styles.input}
             error={!!errors.frequency}
-            disabled={createHabitMutation.isPending}
+            disabled={updateHabitMutation.isPending}
           />
           <HelperText type="error" visible={!!errors.frequency}>
             {errors.frequency}
@@ -153,7 +205,7 @@ export function CreateHabitScreen({ navigation }: CreateHabitScreenProps) {
             style={styles.input}
             keyboardType="numeric"
             error={!!errors.target}
-            disabled={createHabitMutation.isPending}
+            disabled={updateHabitMutation.isPending}
           />
           <HelperText type="error" visible={!!errors.target}>
             {errors.target}
@@ -163,12 +215,12 @@ export function CreateHabitScreen({ navigation }: CreateHabitScreenProps) {
             mode="contained"
             onPress={handleSave}
             style={styles.button}
-            disabled={createHabitMutation.isPending}
-            loading={createHabitMutation.isPending}>
-            {createHabitMutation.isPending ? 'Saving...' : 'Save Habit'}
+            disabled={updateHabitMutation.isPending || isLoadingHabit}
+            loading={updateHabitMutation.isPending}>
+            {updateHabitMutation.isPending ? 'Saving...' : 'Save Changes'}
           </Button>
 
-          {createHabitMutation.isPending && (
+          {updateHabitMutation.isPending && (
             <ActivityIndicator
               animating={true}
               style={styles.activityIndicator}
@@ -187,25 +239,18 @@ export function CreateHabitScreen({ navigation }: CreateHabitScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  container: { flex: 1 },
+  scrollContentContainer: { flexGrow: 1 },
+  content: { flex: 1, padding: 16, justifyContent: 'center' },
+  input: { marginBottom: 8 },
+  button: { marginTop: 24, paddingVertical: 8 },
+  activityIndicator: { marginTop: 16 },
+  centeredMessage: {
     flex: 1,
-  },
-  scrollContentContainer: {
-    flexGrow: 1, // Ensures content can scroll if it overflows
-  },
-  content: {
-    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 16,
-    justifyContent: 'center', // Center content if not enough to scroll
   },
-  input: {
-    marginBottom: 8, // Reduced margin a bit
-  },
-  button: {
-    marginTop: 24,
-    paddingVertical: 8,
-  },
-  activityIndicator: {
-    marginTop: 16,
-  },
+  messageText: { marginTop: 10, fontSize: 16 },
+  errorText: { color: 'red', textAlign: 'center' },
 })

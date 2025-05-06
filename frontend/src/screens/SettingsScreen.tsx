@@ -1,9 +1,10 @@
 import React from 'react'
-import { ScrollView, StyleSheet } from 'react-native'
+import { ScrollView, StyleSheet, Alert } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Appbar, List, Divider, Switch, Button } from 'react-native-paper'
+import { Appbar, List, Divider, Switch, Button, useTheme } from 'react-native-paper'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { MainStackParamList } from '../navigation/MainNavigator'
+import { useAuth } from '../contexts/AuthContext'
 
 type SettingsScreenProps = NativeStackScreenProps<
   MainStackParamList,
@@ -11,9 +12,26 @@ type SettingsScreenProps = NativeStackScreenProps<
 >
 
 export function SettingsScreen({ navigation }: SettingsScreenProps) {
+  const theme = useTheme()
+  const { logout } = useAuth()
   // Placeholder state for settings
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true)
   const [darkMode, setDarkMode] = React.useState(false)
+
+  const renderDarkModeSwitch = React.useCallback(
+    () => <Switch value={darkMode} onValueChange={setDarkMode} />,
+    [darkMode, setDarkMode],
+  )
+
+  const renderNotificationsSwitch = React.useCallback(
+    () => (
+      <Switch
+        value={notificationsEnabled}
+        onValueChange={setNotificationsEnabled}
+      />
+    ),
+    [notificationsEnabled, setNotificationsEnabled],
+  )
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -23,24 +41,14 @@ export function SettingsScreen({ navigation }: SettingsScreenProps) {
       </Appbar.Header>
       <ScrollView style={styles.content}>
         <List.Section title="General">
-          <List.Item
-            title="Dark Mode"
-            right={() => (
-              <Switch value={darkMode} onValueChange={setDarkMode} />
-            )}
-          />
+          <List.Item title="Dark Mode" right={renderDarkModeSwitch} />
           {/* TODO: Link to actual theme switching */}
         </List.Section>
         <Divider />
         <List.Section title="Notifications">
           <List.Item
             title="Enable Notifications"
-            right={() => (
-              <Switch
-                value={notificationsEnabled}
-                onValueChange={setNotificationsEnabled}
-              />
-            )}
+            right={renderNotificationsSwitch}
           />
           {/* TODO: Add specific notification toggles */}
         </List.Section>
@@ -66,10 +74,16 @@ export function SettingsScreen({ navigation }: SettingsScreenProps) {
           />
           <Button
             mode="outlined"
-            color="red"
+            color={theme.colors.error}
             style={styles.button}
-            onPress={() => {
-              /* TODO: Logout */
+            onPress={async () => {
+              try {
+                await logout()
+                // Optional: navigation.replace('Login') or similar if not handled by AuthContext/MainNavigator automatically
+              } catch (error) {
+                console.error('Logout failed:', error)
+                Alert.alert('Logout Failed', 'Could not log out. Please try again.')
+              }
             }}>
             Logout
           </Button>

@@ -1,5 +1,3 @@
-
-
 **Guiding Principles:**
 
 * **SOLID:** We'll aim for:
@@ -36,13 +34,13 @@
     * Set up linters (ESLint/Prettier) and type checking (TypeScript) for code quality. **[COMPLETE - Formatting applied to frontend & backend]**
     * **Initial Jest testing frameworks configured for frontend and backend; initial tests passing.**
     * Containerize backend using Docker for consistent environments. **[COMPLETE - Dockerfile created]**
-    * **Comprehensive `README.md` files for the root project and `backend/api/` created/updated to improve project clarity and onboarding. `frontend/README.md` pending.**
+    * **Comprehensive `README.md` files for the root project and `backend/api/` created/updated to improve project clarity and onboarding. `frontend/README.md` is also created and detailed.**
 
 3.  **Core Backend Infrastructure:** **[Not Started]**
     * **API Gateway:** Entry point for all client requests (e.g., AWS API Gateway). Handles routing, potentially initial auth checks.
     * **Configuration Management:** Securely manage environment variables and secrets (e.g., AWS Secrets Manager, `.env` files with caution).
 
-**Phase 1: User Authentication & Profile** **[IN PROGRESS -> MOSTLY COMPLETE]**
+**Phase 1: User Authentication & Profile** **[COMPLETE (Social Logins Pending, Avatar is Placeholder)]**
 
 **Frontend Foundation Notes:**
 *   Installed and configured React Native Paper UI library. **[COMPLETE]**
@@ -61,7 +59,7 @@
         * Secure refresh token storage and rotation logic. **[Not Implemented - TODOs exist -> COMPLETE (Schema Updated, Service Logic Implemented)]**
     * **SOLID:** SRP is clear. OCP via strategy pattern if supporting multiple auth methods. DIP using interfaces for token generation/storage.
 
-2.  **Frontend - Auth Module:** **[COMPLETE - Forgot Password Pending -> COMPLETE (Placeholders Added)]**
+2.  **Frontend - Auth Module:** **[COMPLETE - Core functionality (Login, SignUp, Token Management, Logout) verified and working. Forgot Password is placeholder.]**
     * **Responsibility (SRP):** Display login/signup screens, handle user input, communicate with Auth Service, store tokens securely.
     * **Implementation:**
         * Screens: Login, Sign Up. **[COMPLETE]**
@@ -81,44 +79,62 @@
         * `UpdateProfileDto` needs definition/refinement for `Profile` fields. **[Needs Implementation -> COMPLETE - Verified (Username Only)]**
     * **SOLID:** SRP.
 
-4.  **Frontend - Profile Module:** **[IN PROGRESS - Display & Navigation Implemented -> COMPLETE (Avatar Placeholder)]**
+4.  **Frontend - Profile Module:** **[COMPLETE - Profile data fetching and display verified. Avatar is placeholder.]**
     * **Responsibility (SRP):** Display profile information, allow editing basic details (username, avatar selection).
     * **Implementation:**
         * Profile Screen (`ProfileScreen.tsx`) implemented with data fetching and display. **[COMPLETE]**
         * Data fetching from `GET /profile/me`. **[COMPLETE]**
         * Display of dynamic profile data (username, level, XP). **[COMPLETE]**
-        * Edit Profile navigation implemented (`EditProfileScreen.tsx` placeholder created). **[COMPLETE]**
-        * Form implementation and API call (`PUT /profile/me`) for editing. **[Not Started -> COMPLETE - Verified]**
-        * Avatar selection/display component. **[Not Started -> COMPLETE - Placeholder Component Created]**
+        * Edit Profile navigation implemented (`EditProfileScreen.tsx` allows username editing). **[COMPLETE]**
+        * Form implementation and API call (`PUT /profile/me`) for editing username. **[COMPLETE - Verified]**
+        * Avatar selection/display component (`AvatarDisplay.tsx`). **[COMPLETE - Placeholder Component Created, displays default icon]**
         * API client integration for Profile Service (`GET /profile/me`). **[COMPLETE]**
 
-**Phase 2: Core Tracking Features (Health & Habits)** **[IN PROGRESS - Frontend Placeholders]**
+**Phase 2: Core Tracking Features (Health & Habits)** **[HABIT TRACKING MOSTLY COMPLETE, HEALTH TRACKING IN PROGRESS]**
 
-1.  **Backend - Habit Service:** **[Not Started]**
+1.  **Backend - Habit Service:** **[COMPLETE - CRUD, Logging, Streak Calculation, and user-specific data fetching via controller verified. AuthGuard active.]**
     * **Responsibility (SRP):** Manage habit definitions, track completions, calculate streaks.
     * **Implementation:**
         * Habit Definition Schema (HabitID, UserID [FK], name, description, frequency [daily/weekly], target, createdAt). **[DEFINED in Prisma - COMPLETE]**
         * Habit Log Schema (LogID, HabitID [FK], UserID [FK], completionDate, notes [optional]). **[DEFINED in Prisma - COMPLETE]**
-        * Streak calculation logic (runs on completion).
-        * Endpoints: `POST /habits`, `GET /habits`, `GET /habits/{id}`, `PUT /habits/{id}`, `DELETE /habits/{id}`, `POST /habits/{id}/log`, `GET /habits/logs`.
+        * **DTOs (`CreateHabitDto`, `UpdateHabitDto`) for habit creation and updates defined with validation. [COMPLETE]**
+        * **`HabitModule`, `HabitController`, `HabitService` created. [COMPLETE]**
+        * **PrismaService injected and used for database interactions. [COMPLETE]**
+        * Streak calculation logic (runs on completion). **[IMPLEMENTED - Initial version in `HabitService` handles daily streaks, invoked on log. Weekly streak logic is a placeholder.]**
+        * Endpoints: 
+            * `POST /habits` **[IMPLEMENTED]**
+            * `GET /habits` **[IMPLEMENTED]**
+            * `GET /habits/{id}` **[IMPLEMENTED]**
+            * `PATCH /habits/{id}` (was `PUT`) **[IMPLEMENTED]**
+            * `DELETE /habits/{id}` **[IMPLEMENTED]**
+            * `POST /habits/{id}/log` **[IMPLEMENTED - Logs completion and invokes streak calculation.]**
+            * `GET /habits/{id}/logs` **[IMPLEMENTED - Fetches logs for a specific habit.]**
+        * **All habit CRUD endpoints are protected by `JwtAuthGuard` and operate on user-specific data. [COMPLETE - Verified, `JwtAuthGuard` is active in `HabitController`.]**
     * **SOLID:** SRP. OCP by allowing different habit types/frequencies later without modifying core logging.
 
-2.  **Frontend - Habit Module:** **[IN PROGRESS - Placeholder screens created]**
+2.  **Frontend - Habit Module:** **[COMPLETE - Habit listing, creation, editing, logging, and detail view are functional. Streak display verified.]**
     * **Responsibility (SRP):** Allow users to create, view, edit, delete habits; mark habits as complete; display streaks.
     * **Implementation:**
-        * Habit List Screen. **[CREATED - Placeholder]**
-        * Create/Edit Habit Form Screen. **[CREATED - Placeholder]**
-        * Habit detail view with progress/log. **[CREATED - Placeholder (`HabitDetailScreen.tsx`)]**
-        * Checkmark/completion interaction. **[Needs Implementation]**
-        * API client for Habit Service. **[Needs Implementation]**
+        * Habit List Screen (`HabitListScreen.tsx`). **[IMPLEMENTED - Fetches and displays habits using react-query. Includes FAB for creation. Each item has a menu with Edit and Delete options. Delete includes a confirmation dialog. Handles loading/error states and provides user feedback via Snackbar. Includes streak display and checkmark icon for logging completion directly from the list. Navigation to `HabitDetailScreen` is correct.]**
+        * Create/Edit Habit Form Screen (`CreateHabitScreen.tsx`, `EditHabitScreen.tsx`). **[IMPLEMENTED - `CreateHabitScreen.tsx` allows new habit creation with form (name, description, frequency, target), validation, and API call using `useMutation`. `EditHabitScreen.tsx` fetches existing habit data, pre-fills form, and uses `useMutation` to update. Both handle loading/error states, invalidate queries, and navigate on success. These are fully functional.]**
+        * Habit detail view with progress/log (`HabitDetailScreen.tsx`). **[IMPLEMENTED - Fetches and displays habit details, including corrected `currentStreak`. Fetches and displays habit completion logs. Includes "Mark Complete" functionality. Navigation from `HabitListScreen` to this screen is correct. Link to Edit screen remains.]**
+        * Checkmark/completion interaction. **[IMPLEMENTED - In `HabitListScreen.tsx` via icon button triggering `logHabitCompletionMutation`. Also implemented in `HabitDetailScreen.tsx`.]**
+        * API client for Habit Service. **[IMPLEMENTED - `frontend/src/api/habitService.ts` provides functions for CRUD, `logHabitCompletion`, and `getHabitLogs`. The `HabitLog` type is defined in `frontend/src/types/habit.ts`. Authentication is handled by the global `apiClient`.]**
+        * `QueryClientProvider` for `react-query` set up in `frontend/App.tsx`. **[COMPLETE]**
 
-3.  **Backend - Health Data Service:** **[Not Started]**
+3.  **Backend - Health Data Service:** **[IN PROGRESS - Basic Scaffolding and Manual Log Entry Implemented]**
     * **Responsibility (SRP):** Store manually entered health data and data synced from external sources.
     * **Implementation:**
-        * Manual Health Log Schema (LogID, UserID [FK], date, metricType [mood, sleepHours, sleepQuality], value). **[DEFINED in Prisma - COMPLETE (as HealthLog)]**
-        * Synced Health Log Schema (LogID, UserID [FK], date, metricType [steps], value, source [Apple Health/Google Fit]). **[DEFINED in Prisma - COMPLETE (as HealthLog)]**
-        * Endpoints: `POST /health/log/manual`, `GET /health/logs`, `POST /health/sync` (Internal endpoint called by integration logic).
-        * Service methods to query data for dashboard/AI.
+        * `HealthModule`, `HealthController`, `HealthService` created. **[NEW - COMPLETE]**
+        * `CreateHealthLogDto` defined to accept a `date` and an array of `HealthMetricDto` (each with `metricType` and `value`). **[NEW - COMPLETE]**
+        * `PrismaService` injected and used for database interactions. **[NEW - COMPLETE]**
+        * Manual Health Log Schema (LogID, UserID [FK], date, metricType [mood, sleepHours, sleepQuality], value). **[DEFINED in Prisma - COMPLETE (as `HealthLog`, `HealthMetricType` enum updated with `WEIGHT`, `HEIGHT`, database migrated)]**
+        * Synced Health Log Schema (LogID, UserID [FK], date, metricType [steps], value, source [Apple Health/Google Fit]). **[DEFINED in Prisma - COMPLETE (as `HealthLog`, uses `HealthDataSource` enum)]**
+        * Endpoints:
+            * `POST /health/log/manual`: **[IMPLEMENTED - Accepts an array of metrics per date. `JwtAuthGuard` applied. Service creates individual `HealthLog` entries with `source: MANUAL`.]**
+            * `GET /health/logs`: **[IMPLEMENTED - Basic version fetches all logs for a user, ordered by date. `JwtAuthGuard` applied.]**
+            * `POST /health/sync` (Internal endpoint called by integration logic). **[Not Started]**
+        * Service methods to query data for dashboard/AI. **[Basic `getHealthLogs` implemented; advanced querying TBD]**
     * **SOLID:** SRP. OCP for adding new metric types.
 
 4.  **Frontend - Health Module:** **[Not Started]**
@@ -131,7 +147,7 @@
             * Send fetched data to `POST /health/sync` (or process diffs). *Requires careful handling of data volume and frequency.*
         * API client for Health Data Service.
 
-**Phase 3: Dashboard & Gamification** **[IN PROGRESS - Frontend Placeholder]**
+**Phase 3: Dashboard & Gamification** **[IN PROGRESS - Frontend Dashboard has initial static layout, Backend Not Started (except Prisma Schemas)]**
 
 1.  **Backend - Dashboard Service / Aggregation Logic:** **[Not Started]**
     * **Responsibility (SRP):** Aggregate data from Habit, Health, and Profile services for dashboard display.
@@ -141,14 +157,15 @@
         * Endpoint: `GET /dashboard/trends?metric=mood&period=week` (returns data for charts).
     * **SOLID:** SRP. Relies on interfaces (DIP) of other services.
 
-2.  **Frontend - Dashboard Module:** **[IN PROGRESS - Placeholder screen created, layout started]**
+2.  **Frontend - Dashboard Module:** **[IN PROGRESS - HomeScreen.tsx implemented with static layout, placeholder data, and navigation]**
     * **Responsibility (SRP):** Fetch and display the aggregated daily snapshot and trends. Allow customization.
     * **Implementation:**
-        * Dashboard Screen (`HomeScreen.tsx`). **[CREATED - Placeholder/Basic Layout]**
-        * Components for displaying mood, sleep, steps, active habits. **[Needs Implementation]**
+        * Dashboard Screen (`HomeScreen.tsx`). **[IMPLEMENTED - Static layout with multiple Card components for Welcome, Mood, Habits (static examples), Activity. Includes Appbar navigation to Profile & Settings. Placeholder text for dynamic data.]**
+        * Components for displaying mood, sleep, steps, active habits. **[Needs Implementation - Placeholders exist in `HomeScreen.tsx`.]**
         * Charting Library (e.g., `react-native-chart-kit`) integration for trends. **[Needs Implementation]**
         * API client for Dashboard Service. **[Needs Implementation]**
         * Local settings for dashboard customization. **[Needs Implementation]**
+    * **SOLID:** SRP. OCP via strategy/rule pattern for adding new XP/Badge/Quest rules. LSP if different Quest types share common behaviors.
 
 3.  **Backend - Gamification Service:** **[Not Started]**
     * **Responsibility (SRP):** Calculate XP, manage levels, award badges based on defined rules and events. Process quest completions.
@@ -172,9 +189,9 @@
         * Map Integration (`react-native-maps`) for displaying quest locations and handling check-ins (requires location permissions).
         * API client for Gamification Service.
 
-**Phase 4: AI Companion & Settings** **[Not Started]**
+**Phase 4: AI Companion & Settings** **[IN PROGRESS - SettingsScreen.tsx UI built with placeholder logic, Backend Not Started (except Prisma Schemas)]**
 
-1.  **Backend - AI Service / Logic:**
+1.  **Backend - AI Service / Logic:** **[Not Started (AIOutput Schema in Prisma is DEFINED)]**
     * **Responsibility (SRP):** Generate insights and micro-quest suggestions based on user data.
     * **Implementation (MVP - Rule-Based):**
         * Scheduled Job (e.g., daily cron): Queries Health/Habit data via internal APIs/direct DB access (read-only replicas preferred).
@@ -184,14 +201,14 @@
         * Endpoint: `GET /ai/insights` (returns unseen insights/suggestions).
     * **SOLID:** SRP. OCP for adding new rules/insights. DIP dependence on abstracted data access.
 
-2.  **Frontend - AI Display:**
+2.  **Frontend - AI Display:** **[Not Started]**
     * **Responsibility (SRP):** Display AI insights/suggestions to the user.
     * **Implementation:**
         * Component on Dashboard or dedicated section.
         * Fetch insights from AI Service endpoint.
         * Allow user interaction (dismiss, act on suggestion).
 
-3.  **Backend - Settings Service:**
+3.  **Backend - Settings Service:** **[Not Started (UserSettings Schema in Prisma is DEFINED)]**
     * **Responsibility (SRP):** Manage user preferences (notifications, privacy settings, AI interaction level).
     * **Implementation:**
         * User Settings Schema (SettingsID, UserID [FK], notificationPrefs [JSONB], privacyFlags [JSONB], aiInteractionLevel). **[DEFINED in Prisma - COMPLETE]**
@@ -200,16 +217,16 @@
 4.  **Frontend - Settings Module:**
     * **Responsibility (SRP):** Provide UI for users to manage settings.
     * **Implementation:**
-        * Settings Screen with toggles/options for notifications, data sharing (integrations), AI preferences. **[CREATED - Placeholder (`SettingsScreen.tsx`)]**
-        * Account management options (Change Password link, Delete Account - triggers backend process).
-        * API client for Settings Service.
+        * Settings Screen with toggles/options for notifications, data sharing (integrations), AI preferences. **[IMPLEMENTED - `SettingsScreen.tsx` UI built with `List.Section` for General (Dark Mode switch), Notifications (Enable switch), Account (Change Password, Policy, ToS, Logout, Delete Account buttons). Logic is placeholder.]**
+        * Account management options (Change Password link, Delete Account - triggers backend process). **[UI Buttons Exist - Backend process and frontend logic pending]**
+        * API client for Settings Service. **[Needs Implementation]**
 
-**Phase 5: Polish & Non-Functional** **[Not Started]**
+**Phase 5: Polish & Non-Functional** **[MOSTLY NOT STARTED (Testing is IN PROGRESS)]**
 
-1.  **Data Privacy & Security Implementation:**
+1.  **Data Privacy & Security Implementation:** **[Not Started (beyond basic DTO validation and Prisma query patterns)]**
     * **Encryption:** Ensure TLS/SSL for all API communication. Encrypt sensitive data at rest in the database (e.g., AWS KMS).
-    * **Permissions:** Implement fine-grained authorization checks on backend endpoints (e.g., user can only access their own data).
-    * **Input Validation:** Rigorously validate and sanitize all inputs on the backend.
+    * **Permissions:** Implement fine-grained authorization checks on backend endpoints (e.g., user can only access their own data). **(Partially addressed by `userId` checks, but needs consistent `JwtAuthGuard` usage and potentially more roles/permissions).**
+    * **Input Validation:** Rigorously validate and sanitize all inputs on the backend. **(Initial DTO validation in place).**
     * **Dependency Security:** Regularly scan dependencies (npm audit, Snyk).
     * **Compliance:** Implement data access/deletion request workflows. Clear privacy policy accessible in-app. Anonymize data used for broader analytics if needed.
 
@@ -225,7 +242,7 @@
     * **Frontend:** Request notification permissions. Handle incoming push notifications. Implement subtle animations for achievements.
 
 5.  **Testing:** **[IN PROGRESS]**
-    * **Unit Tests:** Jest (with `jest-expo` and `@testing-library/react-native` for frontend) configured for both frontend and backend. Initial test suites for core components/services (e.g., `AuthContext`, `AvatarDisplay`, `AuthService.register`) are passing. Backend tests for `AuthService` are comprehensive and passing. The previously noted `console.error` for `updateRefreshTokenHash` during tests has been addressed by spying on `console.error` in relevant test cases. Some general `ts-jest` warnings for `.js` files in `generated/prisma` might still exist. Goal is high coverage of business logic.
+    * **Unit Tests:** Jest (with `jest-expo` and `@testing-library/react-native` for frontend) configured for both frontend and backend. Initial test suites for core components/services (e.g., `AuthContext`, `AvatarDisplay`, `AuthService.register`) are passing. Backend tests for `AuthService` are comprehensive and passing. **Backend tests for `HabitService` and `HabitController` (CRUD operations) are now implemented and passing.** The previously noted `console.error` for `updateRefreshTokenHash` during tests has been addressed by spying on `console.error` in relevant test cases. Some general `ts-jest` warnings for `.js` files in `generated/prisma` might still exist. Goal is high coverage of business logic.
     * **Integration Tests:** Test interactions between backend services (e.g., habit completion triggering gamification). Supertest for API endpoint testing. **[Not Started]**
     * **E2E Tests:** Detox or Appium for testing user flows on simulators/devices. **[Not Started]**
     * **Manual QA:** Thorough testing across different devices and OS versions. **[Ongoing as features develop]**
@@ -235,17 +252,50 @@
     * Finalize CI/CD pipeline for automated deployments to staging and production environments.
     * Set up monitoring, logging, and alerting (e.g., CloudWatch, Sentry, Datadog).
 
-**Next Steps (Frontend Focus):**
-The immediate goal is to start building the visual elements and layout using React Native Paper, aiming for a "pretty and minimal" aesthetic. The next logical steps discussed are:
-1.  **Build Auth Screens:** Create the `LoginScreen.tsx` and `SignUpScreen.tsx` components within `frontend/src/screens` using React Native Paper components (TextInput, Button, etc.) and add them to the `MainNavigator`. **[COMPLETE - Placeholder screens created & Navigation Setup]**
-2.  **Theme Customization:** Define and apply a custom theme for React Native Paper (colors, fonts) to establish the visual identity. This might involve creating a `theme.ts` file and passing it to the `PaperProvider` in `App.tsx`. **[COMPLETE - Initial theme setup]**
-3.  **Dashboard Layout:** Begin structuring the `HomeScreen.tsx` to serve as the main dashboard, laying out placeholder components for key features (mood display, habit list preview, step count, etc.) using Paper components like `Card`, `List`, `Avatar`, etc. **[COMPLETE - Basic layout with Appbar containing Profile/Settings navigation]**
-4.  **Create Placeholder Screens:** Added `ProfileScreen.tsx`, `SettingsScreen.tsx`, and `HabitDetailScreen.tsx` as placeholders. **[COMPLETE]**
-5.  **Update Navigation:** Integrated new placeholder screens into `MainNavigator.tsx`. **[COMPLETE]**
-6.  **Implement Auth Logic (Frontend):** Connect `LoginScreen` and `SignUpScreen` to backend API, handle user input, manage auth state, store tokens securely. **[COMPLETE - Core logic implemented, refresh tokens pending]**
-7.  **Implement Auth Logic (Backend):** Complete JWT generation/validation, password hashing, and core logic within the `AuthService`, utilizing the generated Prisma client. **[COMPLETE - Core logic implemented, refresh tokens pending]**
-8.  **Build Habit Screens (Frontend):** Implement functionality in `HabitListScreen` and `CreateHabitScreen` (forms, API calls). **[Not Started]**
-9.  **Build Habit Service (Backend):** Create the NestJS service, controller, module, and implement logic utilizing the generated Prisma client for habit management. **[Needs Implementation - Prisma Client Available]**
+**Next Steps (Completed & Upcoming):**
 
+The following items, recently focused on, have been addressed:
 
+1.  **Backend - Habit Service Security:** [COMPLETED]
+    *   `JwtAuthGuard` is correctly applied to all endpoints in `backend/api/src/habit/habit.controller.ts`.
+2.  **Backend - Habit Service Enhancement:** [COMPLETED]
+    *   The `getHabitLogs(userId, habitId)` method from `HabitService` is exposed via a new `GET /habits/:habitId/logs` endpoint in `HabitController`.
+3.  **Frontend - Habit Module Refinements:** [COMPLETED]
+    *   A new function in `frontend/src/api/habitService.ts` calls the new `GET /habits/:habitId/logs` backend endpoint (and `HabitLog` type is defined).
+    *   `HabitDetailScreen.tsx` now:
+        *   Correctly displays the `currentStreak`.
+        *   Fetches and displays habit completion logs.
+        *   Includes "Mark Complete" functionality.
+    *   `HabitListScreen.tsx` now correctly navigates from `onViewDetails` to `HabitDetailScreen`.
+4.  **Review and Refine Weekly Streak Logic (Backend - Optional Enhancement):** [DEFERRED]
+    *   The `calculateAndUpdateStreak` in `HabitService` has a placeholder for non-DAILY habits. This will be improved later.
+5.  **Backend - Health Data Service - Initial Implementation:** [NEW - COMPLETED]
+    *   Scaffolded `HealthModule`, `HealthController`, `HealthService`. **[NEW - COMPLETED]**
+    *   Defined `CreateHealthLogDto` to accept a date and an array of `HealthMetricDto` objects. **[NEW - COMPLETED]**
+    *   Updated `HealthMetricType` enum in `prisma/schema.prisma` to include `WEIGHT` and `HEIGHT`. **[NEW - COMPLETED]**
+    *   Ran Prisma migration to apply schema changes. **[NEW - COMPLETED]**
+    *   Implemented `createManualLog` in `HealthService` to process the DTO and create multiple `HealthLog` entries. **[NEW - COMPLETED]**
+    *   Implemented a basic `getHealthLogs` in `HealthService`. **[NEW - COMPLETED]**
+    *   Applied `JwtAuthGuard` to `HealthController`. **[NEW - COMPLETED]**
+6.  **Frontend/Backend Integration - Auth & Core Features:** [NEW - COMPLETED]
+    *   Resolved a series of 401 (Unauthorized) and 404 (Not Found) errors by:
+        *   Correcting the frontend API client's base URL to include the `/api` prefix.
+        *   Adding a global `/api` prefix to the backend NestJS application in `main.ts` to align routing.
+        *   Ensuring the frontend correctly destructured `access_token` (snake_case) from the login response instead of expecting `accessToken` (camelCase), which resolved issues with `SecureStore` attempting to save non-string token values.
+        *   Fixed the Logout button functionality in the `SettingsScreen`.
+        *   Resolved a 500 (Internal Server Error) when fetching habits by ensuring `userId` (from JWT) was parsed to an integer in the `HabitController` before being used in Prisma queries.
+        *   As a result, user login, logout, Profile screen data fetching, and Habit list data fetching are now working correctly.
+
+With these refinements to the Habit Tracking feature complete, and the initial backend for Health Tracking set up, the next steps for **Phase 2: Health Tracking Features** are:
+
+1.  **Backend - Health Data Service - Refinements:**
+    *   Refine error handling in `HealthService` (e.g., for partial failures during batch metric logging).
+    *   Enhance `getHealthLogs` with filtering capabilities (e.g., by date range, metric type).
+    *   Write unit and integration tests for `HealthController` and `HealthService`.
+2.  **Frontend - Health Module - Initial Implementation:**
+    *   Create basic UI for manual health entry (e.g., mood, sleep, weight).
+    *   Develop API client functions in the frontend to interact with the new `/health/log/manual` and `/health/logs` endpoints.
+    *   Display logged health data.
+
+---
 This detailed outline provides a technical roadmap for building the GAMUR MVP. Each phase builds upon the previous one, focusing on delivering specific functionality while adhering to SOLID principles and best practices for a scalable and maintainable application. Remember to refine data models and API contracts as development progresses. **Prisma schemas for MVP features are now defined.**

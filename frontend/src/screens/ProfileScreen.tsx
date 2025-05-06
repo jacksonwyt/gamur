@@ -35,17 +35,34 @@ export function ProfileScreen({ navigation }: ProfileScreenProps) {
         // TODO: Ensure apiClient is configured to send auth token
         const response = await apiClient.get<ProfileData>('/profile/me')
         setProfileData(response.data)
-      } catch (err: any) {
+      } catch (err) {
         console.error('Failed to fetch profile:', err)
-        if (err.response?.status === 401) {
-          // Unauthorized, likely expired token
-          setError('Session expired. Please log in again.')
-          // Optional: Trigger automatic sign out after a delay or user action
-          // await logout();
-          // navigation.navigate('Login'); // Redirect to login
-        } else {
-          setError('Failed to load profile data. Please try again.')
+        let errorMessage = 'Failed to load profile data. Please try again.'
+        // Check if it's an Axios-like error with a response object
+        if (
+          err &&
+          typeof err === 'object' &&
+          'response' in err &&
+          err.response &&
+          typeof err.response === 'object' &&
+          err.response !== null
+        ) {
+          const responseError = err.response as {
+            status?: unknown
+            data?: { message?: string }
+          } // Basic type for response
+          if (responseError.status === 401) {
+            errorMessage = 'Session expired. Please log in again.'
+            // Optional: Trigger automatic sign out after a delay or user action
+            // await logout();
+            // navigation.navigate('Login'); // Redirect to login
+          } else if (responseError.data?.message) {
+            errorMessage = responseError.data.message
+          }
+        } else if (err instanceof Error) {
+          errorMessage = err.message
         }
+        setError(errorMessage)
       } finally {
         setIsLoading(false)
       }

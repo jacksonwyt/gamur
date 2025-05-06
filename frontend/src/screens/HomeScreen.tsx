@@ -12,8 +12,14 @@ import {
 } from 'react-native-paper'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { MainStackParamList } from '../navigation/MainNavigator'
+import type { StyleProp, ViewStyle } from 'react-native'
 
 type HomeScreenProps = NativeStackScreenProps<MainStackParamList, 'Home'>
+
+interface ListItemIconProps {
+  color: string
+  style?: StyleProp<ViewStyle>
+}
 
 export function HomeScreen({ navigation }: HomeScreenProps) {
   function handleNavigateToHabits() {
@@ -29,8 +35,34 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
   }
 
   const renderWelcomeAvatar = React.useCallback(
-    (props: any) => <Avatar.Icon {...props} icon="account-circle" />,
-    []
+    (props: { size: number }) => (
+      <Avatar.Icon {...props} icon="account-circle" />
+    ),
+    [],
+  )
+
+  const renderDrinkWaterLeftIcon = React.useCallback(
+    (props: ListItemIconProps) => <List.Icon {...props} icon="cup-water" />,
+    [],
+  )
+
+  const renderDrinkWaterRightIcon = React.useCallback(
+    (props: ListItemIconProps) => (
+      <List.Icon {...props} icon="check-circle-outline" />
+    ),
+    [],
+  )
+
+  const renderMorningWalkLeftIcon = React.useCallback(
+    (props: ListItemIconProps) => <List.Icon {...props} icon="walk" />,
+    [],
+  )
+
+  const renderMorningWalkRightIcon = React.useCallback(
+    (props: ListItemIconProps) => (
+      <List.Icon {...props} icon="checkbox-blank-circle-outline" />
+    ),
+    [],
   )
 
   return (
@@ -66,18 +98,14 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
             <List.Item
               title="Drink Water"
               description="8 glasses"
-              left={props => <List.Icon {...props} icon="cup-water" />}
-              right={props => (
-                <List.Icon {...props} icon="check-circle-outline" />
-              )}
+              left={renderDrinkWaterLeftIcon}
+              right={renderDrinkWaterRightIcon}
             />
             <List.Item
               title="Morning Walk"
               description="30 minutes"
-              left={props => <List.Icon {...props} icon="walk" />}
-              right={props => (
-                <List.Icon {...props} icon="checkbox-blank-circle-outline" />
-              )}
+              left={renderMorningWalkLeftIcon}
+              right={renderMorningWalkRightIcon}
             />
             {/* TODO: Fetch and display actual habits */}
             <Button

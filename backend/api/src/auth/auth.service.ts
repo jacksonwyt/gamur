@@ -6,13 +6,13 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
+import { PrismaService } from '../prisma/prisma.service';
+import { LoginDto } from '../dto/login.dto';
+import { RegisterDto } from '../dto/register.dto';
 import { ConfigService } from '@nestjs/config';
-import { Prisma, User } from 'generated/prisma/client';
-import { JwtPayload } from 'src/jwt.strategy';
-import { Tokens } from 'src/common/types/tokens.type';
+import { Prisma, User } from '@prisma/client';
+import { JwtPayload } from './strategies/jwt.strategy';
+import { Tokens } from '../common/types/tokens.type';
 
 @Injectable()
 export class AuthService {
@@ -193,7 +193,7 @@ export class AuthService {
     );
 
     if (!rtMatches) {
-      await this.logout(userId);
+      await this.logout(userId); // It's good practice to logout the user if refresh fails
       throw new ForbiddenException('Access Denied: Refresh token mismatch.');
     }
 
@@ -214,15 +214,16 @@ export class AuthService {
               email: createUserDto.email,
               password: hashedPassword,
               name: createUserDto.name,
-              hashedRefreshToken: null,
+              hashedRefreshToken: null, // Initialize hashedRefreshToken
             },
           });
 
+          // Create a profile for the new user
           await tx.profile.create({
             data: {
               userId: user.id,
-              username: createUserDto.name || `user_${user.id}`,
-              currentLevel: 1,
+              username: createUserDto.name || `user_${user.id}`, // Use name or a default
+              currentLevel: 1, // Default values for profile
               currentXP: 0,
             },
           });
@@ -236,10 +237,12 @@ export class AuthService {
       return tokens;
     } catch (error: unknown) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        // Check for unique constraint violation (e.g., email already exists)
         if (error.code === 'P2002') {
           throw new ForbiddenException('Credentials taken');
         }
       }
+      // Log the error for debugging purposes
       console.error('Signup Transaction Error:', error);
       throw new InternalServerErrorException(
         'Something went wrong during signup',

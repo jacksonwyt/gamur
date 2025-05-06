@@ -3,8 +3,8 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from 'src/prisma/prisma.service'; // Assuming PrismaService path
-import { JwtPayload } from 'src/jwt.strategy'; // Assuming JwtPayload type path
+import { PrismaService } from '../../prisma/prisma.service'; // Corrected path
+import { JwtPayload } from './jwt.strategy'; // Corrected path
 
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(

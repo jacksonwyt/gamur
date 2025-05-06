@@ -1,6 +1,6 @@
 import { Controller, Get, Put, Body, UseGuards, Request } from '@nestjs/common';
 import { ProfileService } from './profile.service';
-import { JwtAuthGuard } from '../jwt-auth.guard'; // Corrected path assuming guard is in src/
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'; // Corrected path
 import { UpdateProfileDto } from './dto/update-profile.dto'; // We will create this DTO next
 
 // Define an interface for the expected user object shape attached by the guard

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState } from 'react'
 import { View, StyleSheet } from 'react-native'
 import { TextInput, Button, Text, useTheme } from 'react-native-paper'
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native'
@@ -66,12 +66,25 @@ export function EditProfileScreen() {
           `Update failed with status: ${response.status}. Please try again.`,
         )
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Update Profile Error:', err)
-      // Extract user-friendly error message from response if available
-      const message =
-        err.response?.data?.message ||
-        'An unexpected error occurred while updating your profile.'
+      let message = 'An unexpected error occurred while updating your profile.'
+      // Check if it's an Axios-like error with a response object
+      if (
+        err &&
+        typeof err === 'object' &&
+        'response' in err &&
+        err.response &&
+        typeof err.response === 'object' &&
+        err.response !== null
+      ) {
+        const responseError = err.response as { data?: { message?: string } } // Basic type for response data
+        if (responseError.data?.message) {
+          message = responseError.data.message
+        }
+      } else if (err instanceof Error) {
+        message = err.message
+      }
       setError(message)
     } finally {
       setIsLoading(false)

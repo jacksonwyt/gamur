@@ -9,17 +9,17 @@ import {
   Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
-import { Tokens } from 'src/common/types/tokens.type';
+import { LoginDto } from '../dto/login.dto';
+import { RegisterDto } from '../dto/register.dto';
+import { Tokens } from '../common/types/tokens.type';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
-import { RefreshTokenGuard } from 'src/auth/guards/refresh-token.guard';
+import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import {
   GetCurrentUser,
   GetCurrentUserId,
   Public,
-} from 'src/common/decorators/auth.decorators';
+} from '../common/decorators/auth.decorators';
 
 @Controller('auth')
 export class AuthController {
