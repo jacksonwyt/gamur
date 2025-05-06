@@ -31,9 +31,10 @@ Okay, let's break down the GAMUR MVP vision into a more detailed technical outli
 
 2.  **Project Setup:** **[Mostly Complete]**
     * Initialize Frontend (React Native) and Backend (NestJS) projects. **[COMPLETE]**
-    * Set up version control (Git) with branching strategy (e.g., Gitflow). **[COMPLETE - Basic Git Setup]**
+    * Set up version control (Git) with branching strategy (e.g., Gitflow). **[COMPLETE - Basic Git Setup, .gitignore updated, build artifacts untracked]**
     * Establish CI/CD pipeline basics (e.g., GitHub Actions, GitLab CI, AWS CodePipeline) for automated builds and tests. **[Not Started]**
-    * Set up linters (ESLint/Prettier) and type checking (TypeScript) for code quality. **[COMPLETE - Basic Config Backend, Explicit Config Frontend]**
+    * Set up linters (ESLint/Prettier) and type checking (TypeScript) for code quality. **[COMPLETE - Formatting applied to frontend & backend]**
+    * **Initial Jest testing frameworks configured for frontend and backend; initial tests passing.**
     * Containerize backend using Docker for consistent environments. **[COMPLETE - Dockerfile created]**
 
 3.  **Core Backend Infrastructure:** **[Not Started]**
@@ -222,11 +223,11 @@ Okay, let's break down the GAMUR MVP vision into a more detailed technical outli
     * **Backend:** Integrate with a Push Notification service (e.g., Firebase Cloud Messaging, AWS SNS). Trigger notifications from Gamification Service (streaks, badges) and based on user Settings (reminders).
     * **Frontend:** Request notification permissions. Handle incoming push notifications. Implement subtle animations for achievements.
 
-5.  **Testing:**
-    * **Unit Tests:** Jest for both frontend (React Native components, state logic) and backend (NestJS services, utilities). Aim for high coverage of business logic.
-    * **Integration Tests:** Test interactions between backend services (e.g., habit completion triggering gamification). Supertest for API endpoint testing.
-    * **E2E Tests:** Detox or Appium for testing user flows on simulators/devices.
-    * **Manual QA:** Thorough testing across different devices and OS versions.
+5.  **Testing:** **[IN PROGRESS]**
+    * **Unit Tests:** Jest (with `jest-expo` and `@testing-library/react-native` for frontend) configured for both frontend and backend. Initial test suites for core components/services (e.g., `AuthContext`, `AvatarDisplay`, `AuthService.register`) are passing. Backend tests have some `ts-jest` warnings and a `console.error` in `AuthService` test for `updateRefreshTokenHash` to be investigated. Goal is high coverage of business logic.
+    * **Integration Tests:** Test interactions between backend services (e.g., habit completion triggering gamification). Supertest for API endpoint testing. **[Not Started]**
+    * **E2E Tests:** Detox or Appium for testing user flows on simulators/devices. **[Not Started]**
+    * **Manual QA:** Thorough testing across different devices and OS versions. **[Ongoing as features develop]**
 
 6.  **Deployment:**
     * Configure cloud resources (Database, Cache, Compute instances/serverless functions, Load Balancer, CDN).
