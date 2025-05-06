@@ -5,7 +5,6 @@ import {
   Appbar,
   Button,
   HelperText,
-  Text,
   TextInput,
   Title,
 } from 'react-native-paper'

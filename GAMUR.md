@@ -36,6 +36,7 @@
     * Set up linters (ESLint/Prettier) and type checking (TypeScript) for code quality. **[COMPLETE - Formatting applied to frontend & backend]**
     * **Initial Jest testing frameworks configured for frontend and backend; initial tests passing.**
     * Containerize backend using Docker for consistent environments. **[COMPLETE - Dockerfile created]**
+    * **Comprehensive `README.md` files for the root project and `backend/api/` created/updated to improve project clarity and onboarding. `frontend/README.md` pending.**
 
 3.  **Core Backend Infrastructure:** **[Not Started]**
     * **API Gateway:** Entry point for all client requests (e.g., AWS API Gateway). Handles routing, potentially initial auth checks.
@@ -48,7 +49,7 @@
 *   Installed and configured React Navigation (Native Stack). **[COMPLETE]**
 *   Established basic `src` directory structure (`screens`, `navigation`). **[COMPLETE]**
 
-1.  **Backend - Auth Service:** **[IN PROGRESS - Core logic implemented, refresh tokens pending -> COMPLETE (Pending Linter Fixes)]**
+1.  **Backend - Auth Service:** **[IN PROGRESS - Core logic implemented, refresh tokens pending -> COMPLETE (Core logic and tests implemented, including refresh tokens)]**
     * **Responsibility (SRP):** Handle user registration, login, password management, token generation/validation.
     * **Implementation:**
         * User schema (UserID, email, hashedPassword, socialProviderID, createdAt, updatedAt). **[DEFINED in Prisma - COMPLETE]**
@@ -224,7 +225,7 @@
     * **Frontend:** Request notification permissions. Handle incoming push notifications. Implement subtle animations for achievements.
 
 5.  **Testing:** **[IN PROGRESS]**
-    * **Unit Tests:** Jest (with `jest-expo` and `@testing-library/react-native` for frontend) configured for both frontend and backend. Initial test suites for core components/services (e.g., `AuthContext`, `AvatarDisplay`, `AuthService.register`) are passing. Backend tests have some `ts-jest` warnings and a `console.error` in `AuthService` test for `updateRefreshTokenHash` to be investigated. Goal is high coverage of business logic.
+    * **Unit Tests:** Jest (with `jest-expo` and `@testing-library/react-native` for frontend) configured for both frontend and backend. Initial test suites for core components/services (e.g., `AuthContext`, `AvatarDisplay`, `AuthService.register`) are passing. Backend tests for `AuthService` are comprehensive and passing. The previously noted `console.error` for `updateRefreshTokenHash` during tests has been addressed by spying on `console.error` in relevant test cases. Some general `ts-jest` warnings for `.js` files in `generated/prisma` might still exist. Goal is high coverage of business logic.
     * **Integration Tests:** Test interactions between backend services (e.g., habit completion triggering gamification). Supertest for API endpoint testing. **[Not Started]**
     * **E2E Tests:** Detox or Appium for testing user flows on simulators/devices. **[Not Started]**
     * **Manual QA:** Thorough testing across different devices and OS versions. **[Ongoing as features develop]**

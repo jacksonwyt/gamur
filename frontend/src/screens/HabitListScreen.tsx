@@ -1,7 +1,7 @@
 import React from 'react'
 import { StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Appbar, List, Text, Title } from 'react-native-paper'
+import { Appbar, List, Text } from 'react-native-paper'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import type { RootStackParamList } from '../navigation/MainNavigator' // Adjust the path as necessary
 
@@ -57,7 +57,7 @@ export function HabitListScreen({ navigation }: HabitListScreenProps) {
       <View style={styles.content}>
         {dummyHabits.length === 0 ? (
           <Text style={styles.emptyText}>
-            No habits added yet. Tap '+' to create one!
+            No habits added yet. Tap &apos;+&apos; to create one!
           </Text>
         ) : (
           <List.Section>

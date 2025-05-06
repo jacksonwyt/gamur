@@ -1,7 +1,7 @@
-import React from 'react';
-import { render } from '@testing-library/react-native';
-import { AvatarDisplay } from './AvatarDisplay';
-import { PaperProvider } from 'react-native-paper'; // Avatar.Icon needs PaperProvider
+import React from 'react'
+import { render } from '@testing-library/react-native'
+import { AvatarDisplay } from './AvatarDisplay'
+import { PaperProvider } from 'react-native-paper' // Avatar.Icon needs PaperProvider
 
 describe('AvatarDisplay', () => {
   it('renders correctly with default size', () => {
@@ -11,14 +11,14 @@ describe('AvatarDisplay', () => {
     const tree = render(
       <PaperProvider>
         <AvatarDisplay />
-      </PaperProvider>
-    );
+      </PaperProvider>,
+    )
     // A simple smoke test is to ensure it doesn't throw and returns something.
-    expect(tree.toJSON()).toBeTruthy(); 
-  });
+    expect(tree.toJSON()).toBeTruthy()
+  })
 
   it('renders with custom size', () => {
-    const customSize = 100;
+    const customSize = 100
     // This test primarily checks if the component renders without error when a size prop is passed.
     // Verifying the actual rendered size of the Avatar.Icon component from react-native-paper
     // can be complex as it involves checking internal props or styles that might not be
@@ -28,8 +28,8 @@ describe('AvatarDisplay', () => {
     const tree = render(
       <PaperProvider>
         <AvatarDisplay size={customSize} />
-      </PaperProvider>
-    );
-    expect(tree.toJSON()).toBeTruthy();
-  });
-}); 
+      </PaperProvider>,
+    )
+    expect(tree.toJSON()).toBeTruthy()
+  })
+})

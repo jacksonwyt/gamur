@@ -10,17 +10,29 @@ type HabitDetailScreenProps = NativeStackScreenProps<
   'HabitDetail'
 >
 
+interface Habit {
+  id: string
+  name: string
+  description?: string
+  frequency: string
+  target: string
+  streak: number
+  // Add other relevant habit properties here (e.g., frequency, icon, progress)
+}
+
 export function HabitDetailScreen({
-  route,
+  route, // Keep as route to match NativeStackScreenProps
   navigation,
 }: HabitDetailScreenProps) {
-  // Placeholder: Get habit ID from route params later
-  // const { habitId } = route.params;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _unusedRoute = route // Assign to an underscored variable if truly unused to satisfy one rule, and disable for the other
+  // const { habitId } = route.params // Assuming you pass habitId as a param
 
-  // Placeholder data
-  const habit = {
-    id: '123',
-    name: 'Drink Water',
+  // Placeholder: Fetch or use habit data based on habitId
+  // For now, using dummy data. Replace with actual data fetching.
+  const habit: Habit = {
+    id: '123', // route.params.habitId, <--- This should use route.params if we intend to use it
+    name: 'Drink Water', // Placeholder name
     description: 'Stay hydrated!',
     frequency: 'daily',
     target: '8 glasses',
@@ -60,12 +72,7 @@ export function HabitDetailScreen({
           <Card.Content>
             <Title>Progress / Log</Title>
             <Text>Placeholder for completion log or chart.</Text>
-            <Button
-              mode="contained"
-              style={styles.button}
-              onPress={() => {
-                
-              }}>
+            <Button mode="contained" style={styles.button} onPress={() => {}}>
               Mark Complete for Today
             </Button>
           </Card.Content>

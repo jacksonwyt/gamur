@@ -59,10 +59,15 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
     } catch (err: any) {
       // Catch errors
       console.error('Login failed:', err.response?.data || err.message)
-      const errorMessage = err.response?.data?.message || 'Login failed. Please check your credentials.';
-      setError(errorMessage);
+      const errorMessage =
+        err.response?.data?.message ||
+        'Login failed. Please check your credentials.'
+      setError(errorMessage)
       // Optionally show an alert
-      Alert.alert('Login Error', errorMessage || 'An unexpected error occurred.');
+      Alert.alert(
+        'Login Error',
+        errorMessage || 'An unexpected error occurred.',
+      )
     } finally {
       setIsLoading(false)
     }

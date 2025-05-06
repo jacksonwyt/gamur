@@ -33,8 +33,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (storedToken) {
           setToken(storedToken)
           // Configure apiClient to use the token for subsequent requests
-          apiClient.defaults.headers.common['Authorization'] =
-            `Bearer ${storedToken}`
+          apiClient.defaults.headers.common.Authorization = `Bearer ${storedToken}`
         }
       } catch (e) {
         console.error('Failed to load auth token from storage', e)
@@ -52,7 +51,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await SecureStore.setItemAsync('authToken', newToken)
       setToken(newToken)
       // Configure apiClient with the new token
-      apiClient.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
+      apiClient.defaults.headers.common.Authorization = `Bearer ${newToken}`
     } catch (e) {
       console.error('Failed to save auth token', e)
       // Optionally re-throw or handle the error (e.g., show a message)
@@ -65,7 +64,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await SecureStore.deleteItemAsync('authToken')
       setToken(null)
       // Remove the token from apiClient headers
-      delete apiClient.defaults.headers.common['Authorization']
+      delete apiClient.defaults.headers.common.Authorization
     } catch (e) {
       console.error('Failed to delete auth token', e)
       // Optionally re-throw or handle the error

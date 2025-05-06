@@ -1,6 +1,6 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
-import { Avatar, Text } from 'react-native-paper'
+import { Avatar } from 'react-native-paper'
 
 // Props might include avatarConfig, size, onPress, etc.
 interface AvatarDisplayProps {

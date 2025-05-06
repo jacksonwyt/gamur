@@ -1,5 +1,5 @@
 import React from 'react'
-import { ScrollView, StyleSheet } from 'react-native'
+import { ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import {
   Appbar,
@@ -28,6 +28,11 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
     navigation.navigate('Settings')
   }
 
+  const renderWelcomeAvatar = React.useCallback(
+    (props: any) => <Avatar.Icon {...props} icon="account-circle" />,
+    []
+  )
+
   return (
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
       <Appbar.Header>
@@ -43,7 +48,7 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
           <Card.Title
             title="Welcome Back!"
             subtitle="Here's your dashboard overview."
-            left={props => <Avatar.Icon {...props} icon="account-circle" />}
+            left={renderWelcomeAvatar}
           />
         </Card>
 
@@ -57,7 +62,7 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
 
         <Card style={styles.card}>
           <Card.Content>
-            <Title>Today's Habits</Title>
+            <Title>Today&apos;s Habits</Title>
             <List.Item
               title="Drink Water"
               description="8 glasses"
@@ -93,6 +98,11 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
             {/* TODO: Integrate health data display */}
           </Card.Content>
         </Card>
+
+        <View style={styles.header}>
+          <Title style={styles.headerTitle}>Today&apos;s Focus</Title>
+          <Text style={styles.dateText}>{new Date().toDateString()}</Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   )
@@ -110,5 +120,17 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+  },
+  headerTitle: {
+    flex: 1,
+  },
+  dateText: {
+    fontSize: 12,
+    color: 'gray',
   },
 })
